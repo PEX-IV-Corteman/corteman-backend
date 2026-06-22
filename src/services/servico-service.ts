@@ -7,7 +7,7 @@ export class ServicoService {
             const servico: CreateServicoResponse = await prisma.servicos.create({ data: servicoData });
             return servico;
         } catch (e) {
-            throw new Error("Erro ao criar novo serviço.")
+            throw new Error("Erro ao criar novo serviço.");
         }
     }
 }
