@@ -17,8 +17,9 @@ export class ServicoController {
     }
 
     get: RequestHandler = async (req, res) => {
-        const servicoData: GetServicoRequest = req.body;
-        const servidoId: string = String(req.params.id);
+        const getAllObj: GetServicoRequest = { nome_servico: ""}
+        const servicoData: GetServicoRequest = req.body ? req.body : getAllObj;
+        const servidoId: string = req.params.id ? String(req.params.id) : "";
         const { nome_servico: nomeServico } = servicoData;
         try {
             const servico = await this.servicoService.get(servidoId, nomeServico);
