@@ -17,10 +17,14 @@ export class ServicoController {
     }
 
     get: RequestHandler = async (req, res) => {
-        const getAllObj: GetServicoRequest = { nome_servico: ""}
-        const servicoData: GetServicoRequest = req.body ? req.body : getAllObj;
-        const servidoId: string = req.params.id ? String(req.params.id) : "";
-        const { nome_servico: nomeServico } = servicoData;
+        const servicoData: GetServicoRequest = req.body;
+        const servidoId: string = req.params.id as string;
+        let nomeServico: string | undefined;
+        
+        if (servicoData) {
+            nomeServico = servicoData.nome_servico
+        }
+
         try {
             const servico = await this.servicoService.get(servidoId, nomeServico);
             return res.status(200).json({ servico });

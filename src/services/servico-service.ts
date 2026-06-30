@@ -1,8 +1,15 @@
 import { prisma } from "../config/db.js";
 import type { CreateServicoInput, CreateServicoResponse, GetServicoResponse } from "../interfaces/dtos/servico.js";
 
+type getServicoProps = {
+    servico_id?: string,
+    nome_servico?: string,
+    where: 
+        { servico_id: string } | { nome_servico: string } | { servico_id: string, nome_servico: string }
+}
 
 export class ServicoService {
+
     public async create(servicoData: CreateServicoInput): Promise<CreateServicoResponse | null> {
         try {
             const servico: CreateServicoResponse = await prisma.servicos.create({ data: servicoData });
@@ -15,17 +22,13 @@ export class ServicoService {
 
     public async get(servicoId?: string, servicoName?: string): Promise<GetServicoResponse[] | GetServicoResponse | null> {
 
-        let queryArgs = {
-            servico_id: "" as never, 
-            nome_servico: "" as never,
-            where: { servico_id: "", nome_servico: "" }
-
+        let queryArgs: getServicoProps = { 
+            where: { servico_id: servicoId as string, nome_servico: servicoName as string}
         }
 
         if (servicoId) {
             queryArgs = {
                 ...queryArgs,
-                servico_id: servicoId as never,
                 where: {
                     ...queryArgs.where,
                     servico_id: servicoId
@@ -36,10 +39,9 @@ export class ServicoService {
         if (servicoName) {
             queryArgs = {
                 ...queryArgs, 
-                nome_servico: servicoName as never,
                 where: {
                     ...queryArgs.where,
-                    nome_servico: servicoName as never
+                    nome_servico: servicoName
                 }
             }
         }
@@ -58,5 +60,4 @@ export class ServicoService {
             throw new Error("Erro ao processar pesquisa(s) de servico(s).");
         }
     }
-
 }

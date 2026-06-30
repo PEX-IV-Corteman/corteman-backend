@@ -12,7 +12,7 @@ model atendimentos {
   servico_id        String         @db.Uuid
   valor_atendimento Decimal        @db.Decimal(10, 2)
   metodo_pagamento  tipo_pagamento
-  criado_em         DateTime       @default(now()) @db.Timestamptz(6)
+  realizado_em      DateTime       @default(now()) @db.Timestamptz(6)
   servicos          servicos       @relation(fields: [servico_id], references: [servico_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
