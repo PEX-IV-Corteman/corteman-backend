@@ -1,11 +1,13 @@
 import { prisma } from "../config/db.js";
+import { Prisma } from "../../generated/prisma/client.js";
+import { AppError } from "../errors/app-error.js";
 import type { CreateServicoInput, CreateServicoResponse, GetServicoResponse } from "../interfaces/dtos/servico.js";
+import { ErrorCodes } from "../errors/error-codes.js";
 
 type getServicoProps = {
-    servico_id?: string,
-    nome_servico?: string,
-    where: 
-        { servico_id: string } | { nome_servico: string } | { servico_id: string, nome_servico: string }
+    where: { servico_id: string } |
+    { nome_servico: string } | 
+    { servico_id: string, nome_servico: string }
 }
 
 export class ServicoService {
@@ -15,8 +17,13 @@ export class ServicoService {
             const servico: CreateServicoResponse = await prisma.servicos.create({ data: servicoData });
             return servico;
         } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code == "P2002") {
+                    throw new AppError("Servico já existente.", ErrorCodes.ServicoAlreadyExists);
+                }
+            }
             console.error(e);
-            throw new Error("Erro ao criar novo servico.");
+            throw new Error("Erro interno do servidor. Por favor, tente novamente.");
         }
     }
 
