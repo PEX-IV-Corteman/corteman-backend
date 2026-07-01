@@ -24,3 +24,9 @@ export interface CreateServicoResponse {
     nome_servico: string,
     valor_servico: Decimal,
 }
+
+export interface GetServicoProps {
+    where: { servico_id: string } |
+    { nome_servico: string } | 
+    { servico_id: string, nome_servico: string }
+}

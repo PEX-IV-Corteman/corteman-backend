@@ -1,14 +1,8 @@
 import { prisma } from "../config/db.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../errors/app-error.js";
-import type { CreateServicoInput, CreateServicoResponse, GetServicoResponse } from "../interfaces/dtos/servico.js";
+import type { CreateServicoInput, CreateServicoResponse, GetServicoProps, GetServicoResponse } from "../interfaces/dtos/servico.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-
-type getServicoProps = {
-    where: { servico_id: string } |
-    { nome_servico: string } | 
-    { servico_id: string, nome_servico: string }
-}
 
 export class ServicoService {
 
@@ -29,7 +23,7 @@ export class ServicoService {
 
     public async get(servicoId?: string, servicoName?: string): Promise<GetServicoResponse[] | GetServicoResponse | null> {
 
-        let queryArgs: getServicoProps = { 
+        let queryArgs: GetServicoProps = { 
             where: { servico_id: servicoId as string, nome_servico: servicoName as string}
         }
 

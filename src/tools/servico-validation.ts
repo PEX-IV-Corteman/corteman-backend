@@ -1,4 +1,4 @@
-import type { CreateServicoInput } from "../interfaces/dtos/servico.js";
+import type { CreateServicoInput, GetServicoRequest } from "../interfaces/dtos/servico.js";
 import { Prisma } from "../../generated/prisma/client.js";
 
 export function isServicoValid(servico: CreateServicoInput): boolean {
@@ -19,4 +19,16 @@ export function isServicoValid(servico: CreateServicoInput): boolean {
         console.error(e);
         return false;
     }
+}
+
+
+export function isServicoQueryValid(servico: GetServicoRequest ): boolean {
+
+    if (servico) {
+        const nome_servico = servico.nome_servico ? servico.nome_servico : null;
+        if (!nome_servico) return false;
+        return true;
+    }
+
+    return true;
 }

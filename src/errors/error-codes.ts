@@ -1,3 +1,4 @@
 export enum ErrorCodes {
-    ServicoAlreadyExists = "S001"
+    ServicoAlreadyExists = "SER001",
+    InvalidInputData = "VAL001"
 }

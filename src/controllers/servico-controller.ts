@@ -3,7 +3,7 @@ import type { RequestHandler } from "express";
 import type { CreateServicoRequest, GetServicoRequest, GetServicoResponse } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isServicoValid } from "../tools/servico-validation.js";
+import { isServicoQueryValid, isServicoValid } from "../tools/servico-validation.js";
 
 export class ServicoController {
     constructor(private readonly servicoService: ServicoService) {}
@@ -34,12 +34,12 @@ export class ServicoController {
     get: RequestHandler = async (req, res) => {
         const servicoData: GetServicoRequest = req.body;
         const servidoId: string = req.params.id as string;
-        let nomeServico: string | undefined;
+        let nomeServico = servicoData ? servicoData.nome_servico : undefined;
         
-        if (servicoData) {
-            nomeServico = servicoData.nome_servico
+        if (!isServicoQueryValid(servicoData)) {
+            return res.status(400).json({ message: "Input inválido. Por favor, preencha o campo corretamente."})
         }
-
+        
         try {
             const servico = await this.servicoService.get(servidoId, nomeServico);
             return res.status(200).json({ servico });
