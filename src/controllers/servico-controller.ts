@@ -22,7 +22,7 @@ export class ServicoController {
             return res.status(200).json({ message: "Novo serviço adicionado.", servicoCreated });
         } catch (e) {
             if (e instanceof AppError) {
-                if (e.errorCode = ErrorCodes.ServicoAlreadyExists) {
+                if (e.errorCode = ErrorCodes.RegisterAlreadyExists) {
                     statusCode = 400;
                     responseMessage = e.message;
                 }
@@ -42,9 +42,14 @@ export class ServicoController {
         
         try {
             const servico = await this.servicoService.get(servidoId, nomeServico);
+            if (!servico) return res.status(404).json({ message: "Servico não encontado."});
             return res.status(200).json({ servico });
         } catch (e) {
-            console.error("Erro ao procurar servico:", e);
+            if (e instanceof AppError) {
+                if (e.errorCode === ErrorCodes.InvalidInputData) {
+                    return res.status(400).json({ message: `${e.message} Por favor, tente novamente.`});
+                }
+            }
             return res.status(500).json({ message: "Erro ao procurar por servico. Por favor, tente novamente."});
         }
     }

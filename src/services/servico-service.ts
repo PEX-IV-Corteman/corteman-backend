@@ -13,11 +13,10 @@ export class ServicoService {
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code == "P2002") {
-                    throw new AppError("Servico já existente.", ErrorCodes.ServicoAlreadyExists);
+                    throw new AppError("Servico já existente.", ErrorCodes.RegisterAlreadyExists);
                 }
             }
-            console.error(e);
-            throw new Error("Erro interno do servidor. Por favor, tente novamente.");
+            throw new Error("Erro ao criar servico. Por favor, tente novamente.");
         }
     }
 
@@ -54,10 +53,14 @@ export class ServicoService {
                 return servicos;
             }
 
-            const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: queryArgs.where } );
+            const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: queryArgs.where } );            
             return servico;
         } catch (e) {
-            console.error(e);
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === "P2007") {
+                    throw new AppError("Formato de ID inválido.", ErrorCodes.InvalidInputData);
+                }
+            }
             throw new Error("Erro ao processar pesquisa(s) de servico(s).");
         }
     }

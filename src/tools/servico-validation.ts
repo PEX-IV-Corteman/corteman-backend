@@ -4,25 +4,19 @@ import { Prisma } from "../../generated/prisma/client.js";
 export function isServicoValid(servico: CreateServicoInput): boolean {
     let nome_servico;
     let valor_servico;
-    
-    try {
-        nome_servico = servico.nome_servico ? servico.nome_servico : null;
-        valor_servico = servico.valor_servico ? servico.valor_servico : null;
 
-        if (!nome_servico || !valor_servico) return false;
-        if (nome_servico.length < 5) return false;
-        if ((Prisma.Decimal(valor_servico).toNumber()) < 1.99) return false;
+    nome_servico = servico.nome_servico ? servico.nome_servico : null;
+    valor_servico = servico.valor_servico ? servico.valor_servico : null;
 
-        return true;
+    if (!nome_servico || !valor_servico) return false;
+    if (nome_servico.length < 5) return false;
+    if ((Prisma.Decimal(valor_servico).toNumber()) < 1.99) return false;
 
-    } catch (e) {
-        console.error(e);
-        return false;
-    }
+    return true;
 }
 
 
-export function isServicoQueryValid(servico: GetServicoRequest ): boolean {
+export function isServicoQueryValid(servico: GetServicoRequest): boolean {
 
     if (servico) {
         const nome_servico = servico.nome_servico ? servico.nome_servico : null;
