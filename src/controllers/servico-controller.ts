@@ -1,9 +1,10 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
-import type { CreateServicoRequest, GetServicoRequest, GetServicoResponse } from "../interfaces/dtos/servico.js";
+import type { CreateServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import { isServicoQueryValid, isServicoValid } from "../tools/servico-validation.js";
+import type { Prisma } from "../../generated/prisma/client.js";
 
 export class ServicoController {
     constructor(private readonly servicoService: ServicoService) {}
@@ -23,7 +24,7 @@ export class ServicoController {
         } catch (e) {
             if (e instanceof AppError) {
                 if (e.errorCode = ErrorCodes.RegisterAlreadyExists) {
-                    statusCode = 400;
+                    statusCode = 409;
                     responseMessage = e.message;
                 }
             }
@@ -51,6 +52,35 @@ export class ServicoController {
                 }
             }
             return res.status(500).json({ message: "Erro ao procurar por servico. Por favor, tente novamente."});
+        }
+    }
+
+    update: RequestHandler = async (req, res) => {
+        try {
+            const servicoId: string = String(req.params.id);
+            const servicoData: UpdateServicoRequest = req.body;
+            let nome_servico: string | null = null;
+            let valor_servico: Prisma.Decimal | null = null;
+    
+            if (servicoData) {
+                nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;
+                valor_servico = servicoData.valor_servico ? servicoData.valor_servico : null;
+            }
+    
+            if (!nome_servico && !valor_servico) return res.status(400).json({ message: "Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!"});
+    
+            await this.servicoService.update(servicoId, servicoData);
+            return res.status(200).json({ message: "Servico atualizado com sucesso."});
+    
+        } catch (e) {
+            if (e instanceof AppError) {
+                if (e.errorCode === ErrorCodes.InvalidInputData) {
+                    return res.status(400).json({ message: e.message });
+                }
+                if (e.errorCode === ErrorCodes.RegisterAlreadyExists) {
+                    return res.status(409).json({ message: e.message });
+                }
+            }
         }
     }
 }

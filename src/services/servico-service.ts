@@ -1,7 +1,7 @@
 import { prisma } from "../config/db.js";
-import { Prisma } from "../../generated/prisma/client.js";
+import { Prisma, type servicos } from "../../generated/prisma/client.js";
 import { AppError } from "../errors/app-error.js";
-import type { CreateServicoInput, CreateServicoResponse, GetServicoProps, GetServicoResponse } from "../interfaces/dtos/servico.js";
+import type { CreateServicoInput, CreateServicoResponse, GetServicoProps, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 
 export class ServicoService {
@@ -62,6 +62,41 @@ export class ServicoService {
                 }
             }
             throw new Error("Erro ao processar pesquisa(s) de servico(s).");
+        }
+    }
+
+    public async update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void> {
+        try {
+
+            let nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;
+            let valor_servico = servicoData.valor_servico ? servicoData.valor_servico : null;
+
+            if (!nome_servico && !valor_servico) throw new AppError("Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!", ErrorCodes.InvalidInputData);
+
+            const servico = await prisma.servicos.findUnique({where: {servico_id: servicoId}});
+            if (!servico) throw new AppError("Servico não encontrado.", ErrorCodes.RegisterDoesNotExist);
+
+            await prisma.servicos.update({
+                where: { servico_id: servicoId },
+                data: { 
+                    nome_servico: servicoData.nome_servico as string,
+                    valor_servico: servicoData.valor_servico as Prisma.Decimal,
+                },
+            });
+
+        } catch (e) {
+            if (e instanceof AppError) {
+                throw new AppError(e.message, e.errorCode);
+            }
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === "P2002") {
+                    throw new AppError("Não foi possível realizar alteracão, pois já existe um servico com mesmo nome registrado.", ErrorCodes.RegisterAlreadyExists);
+                }
+                if (e.code === "P2007") {
+                    throw new AppError("Formato de ID inválido. Por favor, verifique as informacões inseridas.", ErrorCodes.InvalidInputData);
+                }
+            }
+            throw new AppError("Erro ao atualizar servico. Por favor, tente novamente.", ErrorCodes.UnknownInternalError);
         }
     }
 }
