@@ -67,7 +67,7 @@ export class ServicoController {
                 valor_servico = servicoData.valor_servico ? servicoData.valor_servico : null;
             }
     
-            if (!nome_servico && !valor_servico) return res.status(400).json({ message: "Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!"});
+            if (!nome_servico || !valor_servico) return res.status(400).json({ message: "Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!"});
     
             await this.servicoService.update(servicoId, servicoData);
             return res.status(200).json({ message: "Servico atualizado com sucesso."});
