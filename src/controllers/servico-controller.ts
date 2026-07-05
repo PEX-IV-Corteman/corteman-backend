@@ -7,28 +7,29 @@ import { isServicoQueryValid, isServicoValid } from "../tools/servico-validation
 import type { Prisma } from "../../generated/prisma/client.js";
 
 export class ServicoController {
-    constructor(private readonly servicoService: ServicoService) {}
+    constructor(private readonly servicoService: ServicoService) { }
 
     create: RequestHandler = async (req, res) => {
-        let statusCode: number = 500;
-        let responseMessage: string = "Erro interno do servidor. Por favor, tente novamente.";
         const servicoData: CreateServicoRequest = req.body;
 
-        if(!isServicoValid(servicoData)) {
-            return res.status(400).json({message: "Inputs inválidos. Por favor, preencher os campos corretamente."});
+        if (!isServicoValid(servicoData)) {
+            return res.status(400).json({ message: "Inputs inválidos. Por favor, preencher os campos corretamente." });
         }
 
         try {
             const servicoCreated = await this.servicoService.create(servicoData);
+
+            if (!servicoCreated) throw new AppError("Erro interno ao adicionar servico. Por favor, tente novamente em alguns instantes.", ErrorCodes.UnknownInternalError);
+
             return res.status(200).json({ message: "Novo serviço adicionado.", servicoCreated });
         } catch (e) {
             if (e instanceof AppError) {
                 if (e.errorCode = ErrorCodes.RegisterAlreadyExists) {
-                    statusCode = 409;
-                    responseMessage = e.message;
+                    return res.status(409).json({ message: e.message });
                 }
+                return res.status(500).json({ message: e.message });
             }
-            return res.status(statusCode).json({ message: responseMessage});
+            return res.status(500).json({ message: "Erro interno inesperado. Por favor, aguarde alguns intantes e tente novamente." });
         }
     }
 
@@ -36,22 +37,22 @@ export class ServicoController {
         const servicoData: GetServicoRequest = req.body;
         const servidoId: string = req.params.id as string;
         let nomeServico = servicoData ? servicoData.nome_servico : undefined;
-        
+
         if (!isServicoQueryValid(servicoData)) {
-            return res.status(400).json({ message: "Input inválido. Por favor, preencha o campo corretamente."})
+            return res.status(400).json({ message: "Input inválido. Por favor, preencha o campo corretamente." })
         }
-        
+
         try {
             const servico = await this.servicoService.get(servidoId, nomeServico);
-            if (!servico) return res.status(404).json({ message: "Servico não encontado."});
+            if (!servico) return res.status(404).json({ message: "Servico não encontado." });
             return res.status(200).json({ servico });
         } catch (e) {
             if (e instanceof AppError) {
                 if (e.errorCode === ErrorCodes.InvalidInputData) {
-                    return res.status(400).json({ message: `${e.message} Por favor, tente novamente.`});
+                    return res.status(400).json({ message: `${e.message} Por favor, tente novamente.` });
                 }
             }
-            return res.status(500).json({ message: "Erro ao procurar por servico. Por favor, tente novamente."});
+            return res.status(500).json({ message: "Erro ao procurar por servico. Por favor, tente novamente." });
         }
     }
 
@@ -61,17 +62,17 @@ export class ServicoController {
             const servicoData: UpdateServicoRequest = req.body;
             let nome_servico: string | null = null;
             let valor_servico: Prisma.Decimal | null = null;
-    
+
             if (servicoData) {
                 nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;
                 valor_servico = servicoData.valor_servico ? servicoData.valor_servico : null;
             }
-    
-            if (!nome_servico && !valor_servico) return res.status(400).json({ message: "Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!"});
-    
+
+            if (!nome_servico || !valor_servico) return res.status(400).json({ message: "Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!" });
+
             await this.servicoService.update(servicoId, servicoData);
-            return res.status(200).json({ message: "Servico atualizado com sucesso."});
-    
+            return res.status(200).json({ message: "Servico atualizado com sucesso." });
+
         } catch (e) {
             if (e instanceof AppError) {
                 if (e.errorCode === ErrorCodes.InvalidInputData) {
