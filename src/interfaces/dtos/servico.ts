@@ -28,10 +28,16 @@ export interface CreateServicoResponse {
 export interface GetServicoProps {
     where: { servico_id: string } |
     { nome_servico: string } | 
-    { servico_id: string, nome_servico: string }
+    { servico_id: string, nome_servico: string },
 }
 
 export interface UpdateServicoRequest {
     nome_servico?: string,
     valor_servico?: Decimal
+}
+
+export interface DeleteServicoProps {
+    where: { servico_id: string } |
+    { nome_servico: string } |
+    { servico_id: string, nome_servico: string },
 }
