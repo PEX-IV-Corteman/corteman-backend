@@ -3,7 +3,7 @@ import type { RequestHandler } from "express";
 import type { CreateServicoRequest, DeleteServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isServicoQueryValid, isServicoValid } from "../tools/servico-validation.js";
+import { isServicoValid } from "../tools/servico-validation.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { servicosModel } from "../../generated/prisma/models.js";
 
@@ -36,14 +36,15 @@ export class ServicoController {
 
     get: RequestHandler = async (req, res) => {
 
-        const servidoId: string = String(req.params.id) ?? null;
+        const servicoId: string = req.params.id as string ?? null;
         let servico: servicosModel | servicosModel[] | null;
+        
         try {
-            if (!servidoId) {
+            if (!servicoId) {
                 servico = await this.servicoService.get();
                 return res.status(200).json({ servico });
             }
-            servico = await this.servicoService.get(servidoId);
+            servico = await this.servicoService.get(servicoId);
             return res.status(200).json({ servico });
         } catch (e) {
             if (e instanceof AppError) {
