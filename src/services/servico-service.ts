@@ -20,41 +20,18 @@ export class ServicoService {
         }
     }
 
-    public async get(servicoId?: string, servicoName?: string): Promise<GetServicoResponse[] | GetServicoResponse | null> {
-
-        let queryArgs: GetServicoProps = {
-            where: { servico_id: servicoId as string, nome_servico: servicoName as string }
-        }
-
-        if (servicoId) {
-            queryArgs = {
-                ...queryArgs,
-                where: {
-                    ...queryArgs.where,
-                    servico_id: servicoId
-                }
-            }
-        }
-
-        if (servicoName) {
-            queryArgs = {
-                ...queryArgs,
-                where: {
-                    ...queryArgs.where,
-                    nome_servico: servicoName
-                }
-            }
-        }
+    public async get(servicoId?: string | null): Promise<GetServicoResponse[] | GetServicoResponse | null> {
 
         try {
 
-            if (!servicoId && !servicoName) {
+            if (!servicoId) {
                 const servicos: GetServicoResponse[] = await prisma.servicos.findMany();
                 return servicos;
             }
 
-            const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: queryArgs.where });
+            const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: { servico_id: servicoId }});
             return servico;
+
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2007") {
@@ -66,6 +43,7 @@ export class ServicoService {
     }
 
     public async update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void> {
+
         try {
 
             let nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;

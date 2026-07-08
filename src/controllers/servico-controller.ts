@@ -3,8 +3,9 @@ import type { RequestHandler } from "express";
 import type { CreateServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isServicoQueryValid, isServicoValid } from "../tools/servico-validation.js";
+import { isServicoValid } from "../tools/servico-validation.js";
 import type { Prisma } from "../../generated/prisma/client.js";
+import type { servicosModel } from "../../generated/prisma/models.js";
 
 export class ServicoController {
     constructor(private readonly servicoService: ServicoService) { }
@@ -34,17 +35,16 @@ export class ServicoController {
     }
 
     get: RequestHandler = async (req, res) => {
-        const servicoData: GetServicoRequest = req.body;
-        const servidoId: string = req.params.id as string;
-        let nomeServico = servicoData ? servicoData.nome_servico : undefined;
 
-        if (!isServicoQueryValid(servicoData)) {
-            return res.status(400).json({ message: "Input inválido. Por favor, preencha o campo corretamente." })
-        }
-
+        const servicoId: string = req.params.id as string ?? null;
+        let servico: servicosModel | servicosModel[] | null;
+        
         try {
-            const servico = await this.servicoService.get(servidoId, nomeServico);
-            if (!servico) return res.status(404).json({ message: "Servico não encontado." });
+            if (!servicoId) {
+                servico = await this.servicoService.get();
+                return res.status(200).json({ servico });
+            }
+            servico = await this.servicoService.get(servicoId);
             return res.status(200).json({ servico });
         } catch (e) {
             if (e instanceof AppError) {
