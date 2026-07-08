@@ -10,5 +10,6 @@ servicoRouter.post("/servicos", controller.create);
 servicoRouter.get("/servicos/:id", controller.get);
 servicoRouter.get("/servicos/", controller.get);
 servicoRouter.put("/servicos/:id", controller.update);
+servicoRouter.delete("/servicos/:id", controller.delete);
 
 export { servicoRouter };

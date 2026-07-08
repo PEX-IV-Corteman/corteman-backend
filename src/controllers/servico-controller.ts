@@ -1,6 +1,6 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
-import type { CreateServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
+import type { CreateServicoRequest, DeleteServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import { isServicoQueryValid, isServicoValid } from "../tools/servico-validation.js";
@@ -57,11 +57,13 @@ export class ServicoController {
     }
 
     update: RequestHandler = async (req, res) => {
+        
+        const servicoId: string = String(req.params.id);
+        const servicoData: UpdateServicoRequest = req.body;
+        let nome_servico: string | null = null;
+        let valor_servico: Prisma.Decimal | null = null;
+
         try {
-            const servicoId: string = String(req.params.id);
-            const servicoData: UpdateServicoRequest = req.body;
-            let nome_servico: string | null = null;
-            let valor_servico: Prisma.Decimal | null = null;
 
             if (servicoData) {
                 nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;
@@ -83,5 +85,34 @@ export class ServicoController {
                 }
             }
         }
+    }
+
+    delete: RequestHandler = async (req, res) => {
+        
+        const servicoId = String(req.params.id) ?? undefined;
+        
+        try {
+            
+            if (!servicoId) {
+                return res.status(400).json({ message: "Dados insuficientes. Por favor, preencher os campos necessários para identificação do serviço desejado." });
+            }
+
+            await this.servicoService.delete(servicoId);
+            return res.status(204).json();
+
+        } catch (e) {
+
+            if (e instanceof AppError) {
+                if (e.errorCode === ErrorCodes.InvalidInputData) {
+                    return res.status(400).json({ message: "Dados do serviço incorretos."});
+                }
+                if (e.errorCode === ErrorCodes.RegisterDoesNotExist) {
+                    return res.status(404).json({ message: "Serviço não encontrado."});
+                }
+            }
+            return res.status(500).json({ message: "Erro ao deletear serviço. Por favor, tente novamente."});
+
+        }
+
     }
 }

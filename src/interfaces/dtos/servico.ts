@@ -36,8 +36,7 @@ export interface UpdateServicoRequest {
     valor_servico?: Decimal
 }
 
-export interface DeleteServicoProps {
-    where: { servico_id: string } |
-    { nome_servico: string } |
-    { servico_id: string, nome_servico: string },
+export interface DeleteServicoRequest {
+    id_servico?: string,
+    nome_servico?: string,
 }

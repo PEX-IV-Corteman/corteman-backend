@@ -1,7 +1,7 @@
 import { prisma } from "../config/db.js";
 import { Prisma, type servicos } from "../../generated/prisma/client.js";
 import { AppError } from "../errors/app-error.js";
-import type { CreateServicoInput, CreateServicoResponse, DeleteServicoProps, GetServicoProps, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
+import type { CreateServicoInput, CreateServicoResponse, GetServicoProps, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 
 export class ServicoService {
@@ -61,7 +61,7 @@ export class ServicoService {
                     throw new AppError("Formato de ID inválido.", ErrorCodes.InvalidInputData);
                 }
             }
-            throw new Error("Erro ao processar pesquisa(s) de servico(s).");
+            throw new AppError("Erro ao processar pesquisa(s) de servico(s).", ErrorCodes.UnknownInternalError);
         }
     }
 
@@ -100,47 +100,32 @@ export class ServicoService {
         }
     }
 
-    public async delete(servicoId?: string, nomeServico?: string): Promise<void> {
-        const servico_id = servicoId ? servicoId : null;
-        const nome_servico = nomeServico ? nomeServico : null;
+    public async delete(servicoId: string): Promise<void> {
+        const servico_id = servicoId ?? null;
 
         try {
-            if (!servico_id && !nome_servico) {
-                throw new AppError("Atributo único não especificado. Por favor, preencha o campo de identificação do serviço corretamente.", ErrorCodes.InvalidInputData);
+            if (!servico_id) {
+                throw new AppError("Id não especificado. Por favor, preencha o campo de identificação do serviço corretamente.", ErrorCodes.InvalidInputData);
             }
 
-            const queryArgs: DeleteServicoProps = {
-                where: { servico_id: "" }
-            }
-
-            if (servico_id) {
-                queryArgs.where = { servico_id: servico_id }
-
-                if (nome_servico) {
-                    queryArgs.where = { servico_id: servico_id, nome_servico: nome_servico }
-                }
-            }
-
-            const servicoToDelete = await this.get(servicoId ?? nomeServico);
-
+            const servicoToDelete = await this.get(servicoId);
+            
             if (!servicoToDelete) {
                 throw new AppError("Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist);
             }
 
             await prisma.servicos.delete({
-                where: queryArgs.where
+                where: { servico_id: servico_id }
             });
 
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2007") {
-                    throw new AppError("Formato de ID inválido. Por favor, tente novamente.", ErrorCodes.InvalidInputData);
+                    throw new AppError("ID inválido. Por favor, tente novamente.", ErrorCodes.InvalidInputData);
                 }
             }
             if (e instanceof AppError) {
-                if (e.errorCode === ErrorCodes.UnknownInternalError) {
-                    throw new AppError(e.message, e.errorCode);
-                }
+                throw new AppError(e.message, e.errorCode);
             }
             throw new AppError("Erro inesperado. Por favor, tente novamente.", ErrorCodes.UnknownInternalError);
         }
