@@ -38,7 +38,7 @@ export class ServicoController {
 
         const servicoId: string = req.params.id as string ?? null;
         let servico: servicosModel | servicosModel[] | null;
-        
+
         try {
             if (!servicoId) {
                 servico = await this.servicoService.get();
@@ -62,17 +62,30 @@ export class ServicoController {
         const servicoData: UpdateServicoRequest = req.body;
         let nome_servico: string | null = null;
         let valor_servico: Prisma.Decimal | null = null;
+        let fieldsToUpdate = { }
 
         try {
 
             if (servicoData) {
-                nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;
-                valor_servico = servicoData.valor_servico ? servicoData.valor_servico : null;
+                nome_servico = servicoData.nome_servico ?? null;
+                valor_servico = servicoData.valor_servico ?? null;
             }
 
-            if (!nome_servico || !valor_servico) return res.status(400).json({ message: "Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!" });
+            if (!nome_servico && !valor_servico) return res.status(400).json({ message: "Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!" });
 
-            await this.servicoService.update(servicoId, servicoData);
+            if (nome_servico) {
+                fieldsToUpdate = {
+                    nome_servico: nome_servico
+                }
+                if (valor_servico) {
+                    fieldsToUpdate = {
+                        nome_servico: nome_servico,
+                        valor_servico: valor_servico
+                    }
+                }
+            }
+
+            await this.servicoService.update(servicoId, fieldsToUpdate);
             return res.status(200).json({ message: "Servico atualizado com sucesso." });
 
         } catch (e) {
@@ -83,7 +96,11 @@ export class ServicoController {
                 if (e.errorCode === ErrorCodes.RegisterAlreadyExists) {
                     return res.status(409).json({ message: e.message });
                 }
+                if (e.errorCode === ErrorCodes.RegisterDoesNotExist) {
+                    return res.status(404).json({ message: "Serviço não encontrado."});
+                }
             }
+            return res.status(500).json({ message: "Erro interno. Por favor, tente novamente em alguns instantes."});
         }
     }
 
