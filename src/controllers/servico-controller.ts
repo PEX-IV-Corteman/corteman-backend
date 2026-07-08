@@ -1,6 +1,6 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
-import type { CreateServicoRequest, DeleteServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
+import type { CreateServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import { isServicoQueryValid, isServicoValid } from "../tools/servico-validation.js";

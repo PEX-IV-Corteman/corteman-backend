@@ -1,5 +1,5 @@
 import { prisma } from "../config/db.js";
-import { Prisma, type servicos } from "../../generated/prisma/client.js";
+import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../errors/app-error.js";
 import type { CreateServicoInput, CreateServicoResponse, GetServicoProps, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { ErrorCodes } from "../errors/error-codes.js";
