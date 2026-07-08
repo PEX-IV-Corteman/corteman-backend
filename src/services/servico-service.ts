@@ -29,6 +29,8 @@ export class ServicoService {
                 return servicos;
             }
 
+
+
             const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: { servico_id: servicoId }});
             return servico;
 
@@ -49,7 +51,7 @@ export class ServicoService {
             let nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;
             let valor_servico = servicoData.valor_servico ? servicoData.valor_servico : null;
 
-            if (!nome_servico || !valor_servico) throw new AppError("Inputs inválidos. Os campos 'nome' e 'valor' precisam ser preenchidos corretamente!", ErrorCodes.InvalidInputData);
+            if (!nome_servico && !valor_servico) throw new AppError("O nome e/ou valor do serviço não foram fornecidos.", ErrorCodes.InvalidInputData);
 
             const servico = await prisma.servicos.findUnique({ where: { servico_id: servicoId } });
             if (!servico) throw new AppError("Servico não encontrado.", ErrorCodes.RegisterDoesNotExist);
