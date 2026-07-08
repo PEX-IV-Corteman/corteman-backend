@@ -45,6 +45,9 @@ export class ServicoController {
                 return res.status(200).json({ servico });
             }
             servico = await this.servicoService.get(servicoId);
+
+            if (!servico) return res.status(404).json({message: "Serviço(s) não encontrado(s)."});
+
             return res.status(200).json({ servico });
         } catch (e) {
             if (e instanceof AppError) {

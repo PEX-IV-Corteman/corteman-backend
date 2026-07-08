@@ -29,6 +29,8 @@ export class ServicoService {
                 return servicos;
             }
 
+
+
             const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: { servico_id: servicoId }});
             return servico;
 
