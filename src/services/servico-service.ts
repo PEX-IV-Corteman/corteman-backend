@@ -1,22 +1,37 @@
 import { prisma } from "../config/db.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../errors/app-error.js";
-import type { CreateServicoInput, CreateServicoResponse, GetServicoProps, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { ErrorCodes } from "../errors/error-codes.js";
+import type
+{
+    CreateServicoInput,
+    CreateServicoResponse,
+    GetServicoResponse,
+    UpdateServicoRequest
+} from "../interfaces/dtos/servico.js";
+import { isServicoValid } from "../tools/servico-validation.js";
 
 export class ServicoService {
 
     public async create(servicoData: CreateServicoInput): Promise<CreateServicoResponse | null> {
         try {
-            const servico: CreateServicoResponse = await prisma.servicos.create({ data: servicoData });
-            return servico;
+
+            if (!isServicoValid(servicoData)) {
+                throw new AppError("Serviço inválido.", ErrorCodes.InvalidInputData);
+            }
+
+            return await prisma.servicos.create({
+                data: servicoData
+            }) satisfies CreateServicoResponse;
+
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code == "P2002") {
                     throw new AppError("Servico já existente.", ErrorCodes.RegisterAlreadyExists);
                 }
             }
-            throw new Error("Erro ao criar servico. Por favor, tente novamente.");
+            throw new AppError("Erro ao criar servico. Por favor, tente novamente.",
+                ErrorCodes.UnknownInternalError);
         }
     }
 
@@ -29,9 +44,7 @@ export class ServicoService {
                 return servicos;
             }
 
-
-
-            const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: { servico_id: servicoId }});
+            const servico: GetServicoResponse | null = await prisma.servicos.findUnique({ where: { servico_id: servicoId } });
             return servico;
 
         } catch (e) {
@@ -44,12 +57,33 @@ export class ServicoService {
         }
     }
 
+    // public async filter(servicoData: FilterServicoRequest): Promise<GetServicoResponse[]> {
+    //     const queryFilters = { nome_servico: null, valor_servico: null };
+
+    //     let nome_servico = servicoData.nome_servico ?? null;
+    //     let valor_servico = servicoData.valor_servico ?? null;
+
+    //     if (!nome_servico && valor_servico) throw new AppError("Dados para filtragem não fornecidos.", ErrorCodes.InvalidInputData);
+
+    //     if (nome_servico) {
+    //         queryFilters["nome_servico" as keyof object] = nome_servico as never;
+    //         if (valor_servico) {
+    //             queryFilters["valor_serivco" as keyof object] = valor_servico as never;
+    //         }
+    //     }
+    //     try {
+    //         const servicos = await prisma.servicos.findMany({
+    //             where: queryFilters
+    //         })
+    //     }
+    // }
+
     public async update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void> {
 
         try {
 
-            let nome_servico = servicoData.nome_servico ? servicoData.nome_servico : null;
-            let valor_servico = servicoData.valor_servico ? servicoData.valor_servico : null;
+            let nome_servico = servicoData.nome_servico ?? null;
+            let valor_servico = servicoData.valor_servico ?? null;
 
             if (!nome_servico && !valor_servico) throw new AppError("O nome e/ou valor do serviço não foram fornecidos.", ErrorCodes.InvalidInputData);
 
@@ -89,7 +123,7 @@ export class ServicoService {
             }
 
             const servicoToDelete = await this.get(servicoId);
-            
+
             if (!servicoToDelete) {
                 throw new AppError("Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist);
             }

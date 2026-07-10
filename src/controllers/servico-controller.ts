@@ -1,6 +1,6 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
-import type { CreateServicoRequest, GetServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
+import type { CreateServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import { isServicoValid } from "../tools/servico-validation.js";
@@ -61,7 +61,7 @@ export class ServicoController {
 
     update: RequestHandler = async (req, res) => {
         
-        const servicoId: string = String(req.params.id);
+        const servicoId = String(req.params.id);
         const servicoData: UpdateServicoRequest = req.body;
         let nome_servico: string | null = null;
         let valor_servico: Prisma.Decimal | null = null;
