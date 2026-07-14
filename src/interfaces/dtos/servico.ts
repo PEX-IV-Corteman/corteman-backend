@@ -27,12 +27,6 @@ export interface CreateServicoResponse {
     valor_servico: Decimal,
 }
 
-export interface GetServicoProps {
-    where: { servico_id: string } |
-    { nome_servico: string } | 
-    { servico_id: string, nome_servico: string },
-}
-
 export interface UpdateServicoRequest {
     nome_servico?: string,
     valor_servico?: Decimal

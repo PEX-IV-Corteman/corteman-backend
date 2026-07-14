@@ -2,27 +2,21 @@ import { prisma } from "../config/db.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import type
-{
+import type {
     CreateServicoInput,
     CreateServicoResponse,
     GetServicoResponse,
     UpdateServicoRequest
 } from "../interfaces/dtos/servico.js";
-import { isServicoValid } from "../tools/servico-validation.js";
 
 export class ServicoService {
 
     public async create(servicoData: CreateServicoInput): Promise<CreateServicoResponse | null> {
         try {
 
-            if (!isServicoValid(servicoData)) {
-                throw new AppError("Serviço inválido.", ErrorCodes.InvalidInputData);
-            }
-
             return await prisma.servicos.create({
                 data: servicoData
-            }) satisfies CreateServicoResponse;
+            });
 
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {

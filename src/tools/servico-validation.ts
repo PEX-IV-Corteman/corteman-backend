@@ -1,14 +1,16 @@
-import type { CreateServicoInput, FilterServicoRequest } from "../interfaces/dtos/servico.js";
-import { Prisma } from "../../generated/prisma/client.js";
+import type { CreateServicoRequest } from "../interfaces/dtos/servico.js";
 
-export function isServicoValid(servico: CreateServicoInput): boolean {
-    
-    const nome_servico = servico.nome_servico ?? null;;
-    const valor_servico = servico.valor_servico ?? null;
 
-    if (!nome_servico || !valor_servico) return false;
-    if (nome_servico.length < 5) return false;
-    if ((Prisma.Decimal(valor_servico).toNumber()) < 1.99) return false;
+export function validateCreateServicoBody(value: unknown): value is CreateServicoRequest {
+    if (typeof value !== "object" || value === null) {
+        return false;
+    }
+    const body = value as Record<string, unknown>;
 
-    return true;
+    return (
+        typeof body.nome_servico === "string" &&
+        body.nome_servico.length > 0 &&
+        typeof body.valor_servico === "number" &&
+        body.valor_servico > 0
+    );
 }

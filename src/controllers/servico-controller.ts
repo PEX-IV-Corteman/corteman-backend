@@ -3,7 +3,7 @@ import type { RequestHandler } from "express";
 import type { CreateServicoRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isServicoValid } from "../tools/servico-validation.js";
+import { validateCreateServicoBody } from "../tools/servico-validation.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { servicosModel } from "../../generated/prisma/models.js";
 
@@ -13,8 +13,8 @@ export class ServicoController {
     create: RequestHandler = async (req, res) => {
         const servicoData: CreateServicoRequest = req.body;
 
-        if (!isServicoValid(servicoData)) {
-            return res.status(400).json({ message: "Inputs inválidos. Por favor, preencher os campos corretamente." });
+        if (!validateCreateServicoBody(servicoData)) {
+            return res.status(400).json({ message: "Dados inválidos." });
         }
 
         try {
@@ -46,7 +46,7 @@ export class ServicoController {
             }
             servico = await this.servicoService.get(servicoId);
 
-            if (!servico) return res.status(404).json({message: "Serviço(s) não encontrado(s)."});
+            if (!servico) return res.status(404).json({ message: "Serviço(s) não encontrado(s)." });
 
             return res.status(200).json({ servico });
         } catch (e) {
@@ -60,12 +60,12 @@ export class ServicoController {
     }
 
     update: RequestHandler = async (req, res) => {
-        
+
         const servicoId = String(req.params.id);
         const servicoData: UpdateServicoRequest = req.body;
         let nome_servico: string | null = null;
         let valor_servico: Prisma.Decimal | null = null;
-        let fieldsToUpdate = { }
+        let fieldsToUpdate = {}
 
         try {
 
@@ -100,19 +100,19 @@ export class ServicoController {
                     return res.status(409).json({ message: e.message });
                 }
                 if (e.errorCode === ErrorCodes.RegisterDoesNotExist) {
-                    return res.status(404).json({ message: "Serviço não encontrado."});
+                    return res.status(404).json({ message: "Serviço não encontrado." });
                 }
             }
-            return res.status(500).json({ message: "Erro interno. Por favor, tente novamente em alguns instantes."});
+            return res.status(500).json({ message: "Erro interno. Por favor, tente novamente em alguns instantes." });
         }
     }
 
     delete: RequestHandler = async (req, res) => {
-        
+
         const servicoId = String(req.params.id) ?? undefined;
-        
+
         try {
-            
+
             if (!servicoId) {
                 return res.status(400).json({ message: "Dados insuficientes. Por favor, preencher os campos necessários para identificação do serviço desejado." });
             }
@@ -124,13 +124,13 @@ export class ServicoController {
 
             if (e instanceof AppError) {
                 if (e.errorCode === ErrorCodes.InvalidInputData) {
-                    return res.status(400).json({ message: "Dados do serviço incorretos."});
+                    return res.status(400).json({ message: "Dados do serviço incorretos." });
                 }
                 if (e.errorCode === ErrorCodes.RegisterDoesNotExist) {
-                    return res.status(404).json({ message: "Serviço não encontrado."});
+                    return res.status(404).json({ message: "Serviço não encontrado." });
                 }
             }
-            return res.status(500).json({ message: "Erro ao deletear serviço. Por favor, tente novamente."});
+            return res.status(500).json({ message: "Erro ao deletear serviço. Por favor, tente novamente." });
 
         }
 
