@@ -5,12 +5,13 @@ import { ErrorCodes } from "../errors/error-codes.js";
 import type {
     CreateServicoInput,
     CreateServicoResponse,
-    FilterServicoRequest,
-    FilterServicoResponse,
     GetServicoResponse,
-    UpdateServicoRequest,
-    ValorServicoFilter
+    ServicoFilters,
+    UpdateServicoRequest
 } from "../interfaces/dtos/servico.js";
+import type { RequireAtLeastOne } from "../tools/servico-validation.js";
+
+type validFilters = RequireAtLeastOne<ServicoFilters>;
 
 export class ServicoService {
 
@@ -157,41 +158,61 @@ export class ServicoService {
         }
     }
 
-    public async filter(servicoData: FilterServicoRequest): Promise<FilterServicoResponse[] | null> {
 
-        const nomeServico = servicoData["nome_servico" as keyof FilterServicoRequest] ?? null;
-        const valorServico = servicoData["valor_servico" as keyof FilterServicoRequest] as ValorServicoFilter ?? null;
+    public async filter(servicoData: validFilters): Promise<GetServicoResponse[] | null> {
+
+        const nomeServico = servicoData.nome_servico;
+        const valorServico = servicoData.valor_servico;
 
         try {
 
+            if (nomeServico && valorServico) {
+                const servicos = await prisma.servicos.findMany({
+                    where: {
+                        nome_servico: { startsWith: nomeServico.startsWith },
+                        valor_servico: { lte: valorServico.max }
+                    }
+                });
+
+                return servicos;
+            }
+
+            const orConditions = [];
+
+            if (nomeServico?.startsWith) {
+                
+                orConditions.push({
+                    nome_servico: { startsWith: nomeServico.startsWith },
+                });
+
+            }
+
+            if (valorServico?.max) {
+                
+                orConditions.push({
+                    valor_servico: { lte: valorServico.max },
+                });
+            }
+
             const servicos = await prisma.servicos.findMany({
                 where: {
-                    OR: [
-                        { nome_servico: { startsWith: nomeServico } },
-                        {
-                            AND: {
-                                valor_servico: {
-                                    lte: valorServico.valor_servico.endRange,
-                                    gte: valorServico.valor_servico.startRange
-                                }
-                            },
-
-                        }
-                    ]
+                    OR: orConditions
                 }
             });
-
+            
             return servicos;
 
         } catch (e) {
+
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                console.error("Error here");
                 throw new AppError(e.message, ErrorCodes.UnknownInternalError);
             }
+            
             throw new AppError(
                 "Erro ao procurar serviços. Por favor, tente novamente.",
                 ErrorCodes.UnknownInternalError
-            )
+            );
+
         }
     }
 }

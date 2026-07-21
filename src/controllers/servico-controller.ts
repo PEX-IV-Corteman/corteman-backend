@@ -1,10 +1,12 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
-import type { UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import { AppError } from "../errors/app-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isCreateServicoBodyValid, isUpdateServicoBodyValid } from "../tools/servico-validation.js";
-import type { Prisma } from "../../generated/prisma/client.js";
+import { isCreateServicoBodyValid, isFilterBodyValid, isUpdateServicoBodyValid, type RequireAtLeastOne } from "../tools/servico-validation.js";
+import type { ServicoFilters } from "../interfaces/dtos/servico.js";
+
+type validFilterBody = RequireAtLeastOne<ServicoFilters>;
+
 
 export class ServicoController {
 
@@ -156,24 +158,38 @@ export class ServicoController {
 
     }
 
-
     filter: RequestHandler = async (req, res) => {
+        
         const servicoData = req.body;
 
+        if (!isFilterBodyValid(servicoData)) {
+            return res.status(400).json({
+                message: "Filtros de pesquisa inválidos ou não fornecidos."
+            });
+        }
+
         try {
-            const servicos = this.servicoService.filter(servicoData);
+
+            const servicos = await this.servicoService.filter(servicoData);
+            
             return res.status(200).json({
                 servicos
             });
-        } catch (e ) {
+
+        } catch (e) {
+            
             if (e instanceof AppError) {
+    
                 return res.status(400).json({
                     message: e.message
                 });
+
             }
+
             return res.status(500).json({
                 message: "Erro ao filtrar serviços. Por favor, tente novamente."
             });
+
         }
     }
 

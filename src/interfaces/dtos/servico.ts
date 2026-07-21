@@ -22,10 +22,19 @@ export interface ValorServicoFilter {
     }
 }
 
-export type FilterServicoRequest = NomeServicoFilter | ValorServicoFilter;
+export interface ServicoFilters {
 
-export type FilterServicoResponse = NomeServicoFilter | ValorServicoFilter;
+    nome_servico?: {
+        startsWith: string,
+        endsWith?: string
+    }
 
+    valor_servico?: {
+        min?: Prisma.Decimal,
+        max: Prisma.Decimal
+    }
+
+}
 
 export interface GetServicoResponse {
     servico_id: string,
