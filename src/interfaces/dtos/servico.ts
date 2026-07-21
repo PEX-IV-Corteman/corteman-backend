@@ -16,6 +16,11 @@ export interface FilterServicoRequest {
     valor_servico?: Prisma.Decimal
 }
 
+export interface FilterServicoResponse {
+    nome_servico: string,
+    valor_servico: Prisma.Decimal
+}
+
 export interface GetServicoResponse {
     servico_id: string,
     nome_servico: string,

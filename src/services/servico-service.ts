@@ -5,6 +5,8 @@ import { ErrorCodes } from "../errors/error-codes.js";
 import type {
     CreateServicoInput,
     CreateServicoResponse,
+    FilterServicoRequest,
+    FilterServicoResponse,
     GetServicoResponse,
     UpdateServicoRequest
 } from "../interfaces/dtos/servico.js";
@@ -151,6 +153,23 @@ export class ServicoService {
                 ErrorCodes.UnknownInternalError
             );
 
+        }
+    }
+
+    public async filter(servicoData: FilterServicoRequest): Promise<FilterServicoResponse[] | null> {
+        try {
+            const servicos = await prisma.servicos.findMany({
+                where: servicoData
+            });
+            return servicos;
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                throw new AppError(e.message, ErrorCodes.UnknownInternalError);
+            }
+            throw new AppError(
+                "Erro ao procurar serviços. Por favor, tente novamente.",
+                ErrorCodes.UnknownInternalError
+            )
         }
     }
 }
