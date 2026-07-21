@@ -11,15 +11,21 @@ export interface CreateServicoRequest {
     valor_servico: Decimal,
 }
 
-export interface FilterServicoRequest {
-    nome_servico?: string,
-    valor_servico?: Prisma.Decimal
+export interface NomeServicoFilter {
+    nome_servico: string
 }
 
-export interface FilterServicoResponse {
-    nome_servico: string,
-    valor_servico: Prisma.Decimal
+export interface ValorServicoFilter {
+    valor_servico: {
+        startRange: Decimal,
+        endRange: Decimal
+    }
 }
+
+export type FilterServicoRequest = NomeServicoFilter | ValorServicoFilter;
+
+export type FilterServicoResponse = NomeServicoFilter | ValorServicoFilter;
+
 
 export interface GetServicoResponse {
     servico_id: string,

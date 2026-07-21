@@ -8,7 +8,8 @@ const servicoRouter = express.Router();
 
 servicoRouter.post("/servicos", controller.create);
 servicoRouter.get("/servicos/:id", controller.get);
-servicoRouter.get("/servicos/", controller.get);
+servicoRouter.get("/servicos", controller.get);
+servicoRouter.get("/servicos-filter", controller.filter);
 servicoRouter.put("/servicos/:id", controller.update);
 servicoRouter.delete("/servicos/:id", controller.delete);
 

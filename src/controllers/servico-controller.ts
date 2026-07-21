@@ -155,4 +155,26 @@ export class ServicoController {
         }
 
     }
+
+
+    filter: RequestHandler = async (req, res) => {
+        const servicoData = req.body;
+
+        try {
+            const servicos = this.servicoService.filter(servicoData);
+            return res.status(200).json({
+                servicos
+            });
+        } catch (e ) {
+            if (e instanceof AppError) {
+                return res.status(400).json({
+                    message: e.message
+                });
+            }
+            return res.status(500).json({
+                message: "Erro ao filtrar serviços. Por favor, tente novamente."
+            });
+        }
+    }
+
 }

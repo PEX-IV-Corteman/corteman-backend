@@ -8,7 +8,8 @@ import type {
     FilterServicoRequest,
     FilterServicoResponse,
     GetServicoResponse,
-    UpdateServicoRequest
+    UpdateServicoRequest,
+    ValorServicoFilter
 } from "../interfaces/dtos/servico.js";
 
 export class ServicoService {
@@ -111,10 +112,10 @@ export class ServicoService {
     public async delete(servicoId: string): Promise<void> {
 
         const servico_id = servicoId ?? null;
-        
+
         if (!servico_id) {
             throw new AppError(
-                "Id não especificado. Por favor, preencha o campo de identificação do serviço corretamente.", 
+                "Id não especificado. Por favor, preencha o campo de identificação do serviço corretamente.",
                 ErrorCodes.InvalidInputData
             );
         }
@@ -157,13 +158,34 @@ export class ServicoService {
     }
 
     public async filter(servicoData: FilterServicoRequest): Promise<FilterServicoResponse[] | null> {
+
+        const nomeServico = servicoData["nome_servico" as keyof FilterServicoRequest] ?? null;
+        const valorServico = servicoData["valor_servico" as keyof FilterServicoRequest] as ValorServicoFilter ?? null;
+
         try {
+
             const servicos = await prisma.servicos.findMany({
-                where: servicoData
+                where: {
+                    OR: [
+                        { nome_servico: { startsWith: nomeServico } },
+                        {
+                            AND: {
+                                valor_servico: {
+                                    lte: valorServico.valor_servico.endRange,
+                                    gte: valorServico.valor_servico.startRange
+                                }
+                            },
+
+                        }
+                    ]
+                }
             });
+
             return servicos;
+
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                console.error("Error here");
                 throw new AppError(e.message, ErrorCodes.UnknownInternalError);
             }
             throw new AppError(
