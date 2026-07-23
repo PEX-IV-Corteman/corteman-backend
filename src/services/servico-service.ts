@@ -10,25 +10,28 @@ import type {
     UpdateServicoRequest
 } from "../interfaces/dtos/servico.js";
 import type { RequireAtLeastOne } from "../tools/servico-validation.js";
+import type { ServicoRepository } from "../interfaces/servico-repository.js";
 
 type validFilters = RequireAtLeastOne<ServicoFilters>;
 
 export class ServicoService {
 
+    constructor(private repository: ServicoRepository) {};
+
     public async create(servicoData: CreateServicoInput): Promise<CreateServicoResponse> {
 
         try {
 
-            return await prisma.servicos.create({
-                data: servicoData
-            });
+            return await this.repository.create(servicoData);
 
         } catch (e) {
 
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code == "P2002") {
-                    throw new AppError("Servico já existente.", ErrorCodes.RegisterAlreadyExists);
+            if(e instanceof AppError) {
+
+                if (e.errorCode === ErrorCodes.RegisterAlreadyExists) {
+                    throw new AppError(e.message, e.errorCode);
                 }
+                
             }
 
             throw new AppError("Erro ao criar servico. Por favor, tente novamente.", ErrorCodes.UnknownInternalError);

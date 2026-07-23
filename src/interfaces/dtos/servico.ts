@@ -43,6 +43,7 @@ export interface GetServicoResponse {
 }
 
 export interface CreateServicoResponse {
+    servico_id: string,
     nome_servico: string,
     valor_servico: Decimal,
 }
