@@ -3,11 +3,12 @@ import type { CreateServicoInput, CreateServicoResponse } from "../../../src/int
 import { ServicoService } from "../../../src/services/servico-service.js";
 import assert from "node:assert";
 import { Prisma } from "../../../generated/prisma/client.js";
+import { AppError } from "../../../src/errors/app-error.js";
+import { ErrorCodes } from "../../../src/errors/error-codes.js";
 
 
 
-
-test("should create a new 'serviço' and return it", async (t) => {
+test("Should create a new 'serviço' and return it", async (t) => {
     
     const fakeServicoRepository = {
         create: t.mock.fn(async (servico: CreateServicoInput): Promise<CreateServicoResponse> => {
@@ -43,3 +44,37 @@ test("should create a new 'serviço' and return it", async (t) => {
     );
 
 });
+
+test("Should throw an error when the 'servico' passed as input is invalid", async (t) => {
+
+    const fakeServicoRepository = {
+
+        create: t.mock.fn(async (servico: CreateServicoInput): Promise<CreateServicoResponse> => {
+            
+            if (
+                servico.nome_servico.length <= 0 ||
+                servico.valor_servico.toNumber() < 1
+            ) {
+                throw new AppError("Cannot create serviço: Invalid data.", ErrorCodes.InvalidInputData);
+            }
+
+            return {
+                servico_id: "123",
+                ...servico
+            }
+        })
+
+    }
+    
+    const fakeServicoService = new ServicoService(fakeServicoRepository);
+
+    const fakeInvalidServico = {
+        nome_servico: "",
+        valor_servico: Prisma.Decimal(99.88)
+    }
+
+    assert.rejects(() => {
+        return fakeServicoService.create(fakeInvalidServico);
+    });
+
+})
