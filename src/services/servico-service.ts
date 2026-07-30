@@ -40,26 +40,19 @@ export class ServicoService {
 
     }
 
-    public async get(servicoId?: string | null): Promise<GetServicoResponse[] | GetServicoResponse | null> {
+    public async get(): Promise<GetServicoResponse[]> {
 
         try {
 
-            if (!servicoId) {
-                const servicos: GetServicoResponse[] = await prisma.servicos.findMany();
-                return servicos;
-            }
-
-            const servico = await prisma.servicos.findUnique({
-                where: { servico_id: servicoId }
-            });
-            return servico;
+            const servicos = await this.repository.get();
+            return servicos;
 
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === "P2007") {
-                    throw new AppError("Identificador inválido: serviço não encontrado.", ErrorCodes.InvalidInputData);
-                }
+
+            if (e instanceof AppError) {
+                
             }
+
             throw new AppError("Erro ao processar pesquisa(s) de servico(s).", ErrorCodes.UnknownInternalError);
         }
     }
@@ -68,42 +61,9 @@ export class ServicoService {
 
         try {
 
-            await prisma.servicos.update({
-
-                where: { servico_id: servicoId },
-                data: {
-                    nome_servico: servicoData.nome_servico as string,
-                    valor_servico: servicoData.valor_servico as Prisma.Decimal,
-                },
-
-            });
+            await this.repository.update(servicoId, servicoData);
 
         } catch (e) {
-
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-
-                if (e.code === "P2025") {
-                    throw new AppError(
-                        "Serviço não encontrado",
-                        ErrorCodes.RegisterDoesNotExist
-                    );
-                }
-
-                if (e.code === "P2002") {
-                    throw new AppError(
-                        "Não foi possível realizar alteracão, pois já existe um servico com mesmo nome registrado.",
-                        ErrorCodes.RegisterAlreadyExists
-                    );
-                }
-
-                if (e.code === "P2007") {
-                    throw new AppError(
-                        "Formato de ID inválido. Por favor, verifique as informacões inseridas.",
-                        ErrorCodes.InvalidInputData
-                    );
-                }
-
-            }
 
             throw new AppError(
                 "Erro ao atualizar servico. Por favor, tente novamente.",
@@ -135,10 +95,12 @@ export class ServicoService {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
                 if (e.code === "P2025") {
+
                     throw new AppError(
                         "Serviço não encontrado.",
                         ErrorCodes.RegisterDoesNotExist
                     );
+
                 }
 
                 if (e.code === "P2007") {

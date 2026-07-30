@@ -1,4 +1,4 @@
-export class AppError extends Error {
+export class DatabaseError extends Error {
     public errorCode: string;
     
     constructor(message: string, errorCode: string) {

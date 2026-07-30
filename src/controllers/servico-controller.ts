@@ -28,10 +28,13 @@ export class ServicoController {
         } catch (e) {
 
             if (e instanceof AppError) {
+
                 if (e.errorCode = ErrorCodes.RegisterAlreadyExists) {
                     return res.status(409).json({ message: e.message });
                 }
+
                 return res.status(500).json({ message: e.message });
+                
             }
 
             return res.status(500).json({
