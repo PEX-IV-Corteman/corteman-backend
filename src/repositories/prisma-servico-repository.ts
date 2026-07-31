@@ -1,15 +1,14 @@
-
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
-import { AppError } from "../errors/app-error.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import type { CreateServicoInput, CreateServicoResponse, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import type { ServicoRepository } from "../interfaces/servico-repository.js";
+import type { ServicoFilters } from "../tools/servico-validation.js";
 
 export class PrismaServicoRepository implements ServicoRepository {
 
-    async create(servico: CreateServicoInput): Promise<CreateServicoResponse> {
+    public async create(servico: CreateServicoInput): Promise<CreateServicoResponse> {
 
         try {
 
@@ -24,33 +23,35 @@ export class PrismaServicoRepository implements ServicoRepository {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
                 if (e.code == "P2002") {
-                    throw new DatabaseError("O nome do Serviço deve ser único.",
+                    throw new DatabaseError("Serviço deve ser único.",
                         ErrorCodes.RegisterAlreadyExists);
                 }
 
             }
 
-            throw new DatabaseError("Erro ao criar serviço.", ErrorCodes.UnknownInternalError);
+            throw e;
 
         }
 
     }
 
-    async get(): Promise<GetServicoResponse[]> {
+    public async get(): Promise<GetServicoResponse[]> {
 
-        try {
-
-            const servicos = await prisma.servicos.findMany();
-            return servicos;
-
-        } catch (e) {
-
-            throw new DatabaseError("Erro ao acessar serviços.", ErrorCodes.UnknownInternalError);
-
-        }
+        const servicos = await prisma.servicos.findMany();
+        return servicos;
     }
 
-    async update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void> {
+    public async find(servicoId: string): Promise<GetServicoResponse | null> {
+
+        const servico = await prisma.servicos.findUnique({
+            where: { servico_id: servicoId }
+        });
+        
+        return servico;
+
+    }
+
+    public async update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void> {
 
         try {
 
@@ -75,17 +76,20 @@ export class PrismaServicoRepository implements ServicoRepository {
                 if (e.code === "P2002") {
 
                     throw new DatabaseError(
-                        "O Nome do serviço deve ser único.", ErrorCodes.RegisterAlreadyExists
+                        "Serviço deve ser único.", ErrorCodes.RegisterAlreadyExists
                     );
 
                 }
 
             }
 
+            throw e;
+
         }
+
     }
 
-    async delete(servicoId: string): Promise<void> {
+    public async delete(servicoId: string): Promise<void> {
 
         try {
 
@@ -107,7 +111,39 @@ export class PrismaServicoRepository implements ServicoRepository {
 
             }
 
+            throw e;
+
         }
+
+    }
+
+    public async filter(servicoData: ServicoFilters): Promise<GetServicoResponse[]> {
+
+        const filterConditions = [];
+
+        if (servicoData.nome_servico?.startsWith) {
+
+            filterConditions.push({
+                nome_servico: { startsWith: servicoData.nome_servico.startsWith }
+            });
+
+        }
+
+        if (servicoData.valor_servico?.max) {
+
+            filterConditions.push({
+                valor_servico: { lte: servicoData.valor_servico.max }
+            });
+        }
+
+        const servicos = await prisma.servicos.findMany({
+            where: {
+                OR: filterConditions
+            }
+        });
+
+        return servicos;
+        
     }
 
 }

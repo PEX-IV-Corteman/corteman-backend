@@ -11,18 +11,7 @@ export interface CreateServicoRequest {
     valor_servico: Decimal,
 }
 
-export interface NomeServicoFilter {
-    nome_servico: string
-}
-
-export interface ValorServicoFilter {
-    valor_servico: {
-        startRange: Decimal,
-        endRange: Decimal
-    }
-}
-
-export interface ServicoFilters {
+export interface FilterServicosRequest {
 
     nome_servico?: {
         startsWith: string,
@@ -51,9 +40,4 @@ export interface CreateServicoResponse {
 export interface UpdateServicoRequest {
     nome_servico?: string,
     valor_servico?: Decimal
-}
-
-export interface DeleteServicoRequest {
-    id_servico?: string,
-    nome_servico?: string,
 }
