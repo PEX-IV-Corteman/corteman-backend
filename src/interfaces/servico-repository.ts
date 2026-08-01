@@ -5,7 +5,7 @@ export interface ServicoRepository {
     
     create(servico: CreateServicoInput): Promise<CreateServicoResponse>;
 
-    get(): Promise<GetServicoResponse[]>;
+    list(): Promise<GetServicoResponse[]>;
 
     find(servicoId: string): Promise<GetServicoResponse | null>;
 

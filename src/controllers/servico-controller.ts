@@ -1,7 +1,8 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isCreateServicoBodyValid, isFilterBodyValid, isUpdateServicoBodyValid } from "../tools/servico-validation.js";
+import { isCreateServicoBodyValid, isFilterQueryValid, isUpdateServicoBodyValid } from "../tools/servico-validation.js";
+import type { ServicoFilters } from "../tools/servico-validation.js";
 import { DatabaseError } from "../errors/database-error.js";
 
 export class ServicoController {
@@ -39,11 +40,15 @@ export class ServicoController {
         
     }
 
-    get: RequestHandler = async (req, res) => {
+    list: RequestHandler = async (req, res, next) => {
+
+        if (Object.keys(req.query).length > 0) {
+            return this.filter(req, res, next);
+        }
 
         try {
 
-            const servicos = await this.servicoService.get();
+            const servicos = await this.servicoService.list();
             return res.status(200).json({ servicos });
 
         } catch (e) {
@@ -137,11 +142,20 @@ export class ServicoController {
 
     filter: RequestHandler = async (req, res) => {
 
-        const servicoData = req.body;
+        const servicoQuery = req.query;
 
-        if (!isFilterBodyValid(servicoData)) {
+        if (!isFilterQueryValid(servicoQuery)) {
             return res.status(400).json({ message: "Filtros inválidos ou não fornecidos." });
         }
+
+        const servicoData = {
+            ...(servicoQuery.nome_servico && {
+                nome_servico: { startsWith: servicoQuery.nome_servico }
+            }),
+            ...(servicoQuery.valor_max && {
+                valor_servico: { max: Number(servicoQuery.valor_max) }
+            })
+        } as ServicoFilters;
 
         try {
 

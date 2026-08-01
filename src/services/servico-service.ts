@@ -1,4 +1,3 @@
-import { prisma } from "../config/db.js";
 import type {
     CreateServicoInput, CreateServicoResponse,
     GetServicoResponse, UpdateServicoRequest
@@ -17,9 +16,9 @@ export class ServicoService {
 
     }
 
-    public async get(): Promise<GetServicoResponse[]> {
+    public async list(): Promise<GetServicoResponse[]> {
 
-        const servicos = await this.repository.get();
+        const servicos = await this.repository.list();
         return servicos;
 
     }

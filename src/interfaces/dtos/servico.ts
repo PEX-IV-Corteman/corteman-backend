@@ -1,5 +1,4 @@
 import type { Decimal } from "@prisma/client/runtime/index-browser"
-import type { Prisma } from "../../../generated/prisma/client.js";
 
 export interface CreateServicoInput {
     nome_servico: string,
@@ -19,10 +18,15 @@ export interface FilterServicosRequest {
     }
 
     valor_servico?: {
-        min?: Prisma.Decimal,
-        max: Prisma.Decimal
+        min?: number,
+        max: number
     }
 
+}
+
+export interface FilterServicosQuery {
+    nome_servico?: string,
+    valor_max?: string
 }
 
 export interface GetServicoResponse {

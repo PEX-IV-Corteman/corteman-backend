@@ -35,7 +35,7 @@ export class PrismaServicoRepository implements ServicoRepository {
 
     }
 
-    public async get(): Promise<GetServicoResponse[]> {
+    public async list(): Promise<GetServicoResponse[]> {
 
         const servicos = await prisma.servicos.findMany();
         return servicos;
