@@ -6,6 +6,7 @@ import type { ServicoFilters } from "../tools/servico-validation.js";
 import { formatValidationError } from "../tools/zod-error-formatter.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { createServicoSchema } from "../schemas/servico-schema.js";
+import type { ApiErrorResponse, ApiResponse } from "../interfaces/api-response.js";
 
 export class ServicoController {
 
@@ -22,24 +23,38 @@ export class ServicoController {
         try {
 
             const servicoCreated = await this.servicoService.create(validation.data);
-            return res.status(201).json({ message: "Novo serviço adicionado.", servicoCreated });
+
+            const response: ApiResponse<typeof servicoCreated> = {
+                success: true,
+                message: "Novo serviço adicionado.",
+                data: servicoCreated,
+                errors: []
+            };
+
+            return res.status(201).json(response);
 
         } catch (e) {
 
-            if (e instanceof DatabaseError) {
+            let status = 500;
 
-                if (e.errorCode = ErrorCodes.RegisterAlreadyExists) {
-                    return res.status(409).json({ message: e.message });
-                }
+            let response: ApiErrorResponse = {
+                success: false,
+                message: "Erro ao criar serviço.",
+                data: null,
+                errors: []
+            };
 
-                return res.status(500).json({ message: e.message });
+            if (e instanceof DatabaseError && e.errorCode === ErrorCodes.RegisterAlreadyExists) {
 
+                response.message = "Não foi possível adicionar o serviço.";
+                response.errors = [{ field: "nome_servico", messages: [e.message] }];
+                status = 409;
             }
 
-            return res.status(500).json({ message: "Erro ao criar serviço." });
+            console.error(e);
 
+            return res.status(status).json(response);
         }
-        
     }
 
     list: RequestHandler = async (req, res, next) => {

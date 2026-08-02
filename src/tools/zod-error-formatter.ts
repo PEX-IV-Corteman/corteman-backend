@@ -1,15 +1,25 @@
 import * as z from "zod";
+import type { ApiErrorResponse } from "../interfaces/api-response.js";
 
-function formatValidationError(error: z.ZodError) {
-    const { fieldErrors, formErrors } = z.flattenError(error);
-    const errors = {
-        ...fieldErrors,
-        ...(formErrors.length > 0 && { _body: formErrors })
-    };
+function formatValidationError(error: z.ZodError): ApiErrorResponse {
+    const groupedErrors = new Map<string | null, string[]>();
+
+    for (const issue of error.issues) {
+        const field = issue.path.length > 0 ? issue.path.map(String).join(".") : null;
+        const messages = groupedErrors.get(field) ?? [];
+
+        messages.push(issue.message);
+        groupedErrors.set(field, messages);
+    }
 
     return {
+        success: false,
         message: "Os dados informados são inválidos.",
-        errors
+        data: null,
+        errors: Array.from(groupedErrors, ([field, messages]) => ({
+            field,
+            messages
+        }))
     };
 }
 

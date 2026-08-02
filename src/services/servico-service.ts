@@ -12,8 +12,7 @@ export class ServicoService {
 
     public async create(servicoData: CreateServicoInput): Promise<CreateServicoResponse> {
 
-        const created = await this.repository.create(servicoData);
-        return created;
+        return await this.repository.create(servicoData);
 
     }
 

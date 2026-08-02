@@ -13,27 +13,16 @@ export class PrismaServicoRepository implements ServicoRepository {
 
         try {
 
-            const created = await prisma.servicos.create({
-                data: servico
-            });
-
-            return created;
+            return await prisma.servicos.create({ data: servico });
 
         } catch (e) {
 
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-
-                if (e.code == "P2002") {
-                    throw new DatabaseError("Serviço deve ser único.",
-                        ErrorCodes.RegisterAlreadyExists);
-                }
-
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+                throw new DatabaseError("O nome do serviço já está em uso.", ErrorCodes.RegisterAlreadyExists);
             }
 
             throw e;
-
         }
-
     }
 
     public async list(): Promise<GetServicoResponse[]> {
