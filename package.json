@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "dev": "tsx watch --clear-screen=false server.ts",
-    "test": "tsx --test",
+    "test": "tsx --test \"tests/**/*.test.ts\"",
     "type-check": "tsc --project tsconfig.build.json --noEmit"
   },
   "repository": {

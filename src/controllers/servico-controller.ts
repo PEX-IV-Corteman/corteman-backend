@@ -49,9 +49,10 @@ export class ServicoController {
                 response.message = "Não foi possível adicionar o serviço.";
                 response.errors = [{ field: "nome_servico", messages: [e.message] }];
                 status = 409;
-            }
 
-            console.error(e);
+            } else {
+                console.error(e);
+            }
 
             return res.status(status).json(response);
         }

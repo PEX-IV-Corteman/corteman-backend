@@ -17,6 +17,8 @@ const createServicoSchema = z.object({
                 : "O valor do serviço deve ser um número."
         })
         .positive({ error: "O valor do serviço deve ser maior que zero." })
+        .multipleOf(0.01, { error: "O valor do serviço deve ter no máximo duas casas decimais." })
+        .max(99_999_999.99, { error: "O valor do serviço deve ser menor ou igual a 99.999.999,99." })
 });
 
 type CreateServicoInput = z.infer<typeof createServicoSchema>;
