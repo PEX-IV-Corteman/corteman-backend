@@ -1,5 +1,6 @@
 import { test } from "node:test";
-import type { CreateServicoInput, CreateServicoResponse } from "../../../src/interfaces/dtos/servico.js";
+import type { CreateServicoResponse } from "../../../src/interfaces/dtos/servico.js";
+import type { CreateServicoInput } from "../../../src/schemas/servico-schema.js";
 import { ServicoService } from "../../../src/services/servico-service.js";
 import assert from "node:assert";
 import { Prisma } from "../../../generated/prisma/client.js";
@@ -14,7 +15,8 @@ test("Should create a new 'serviço' and return it", async (t) => {
         create: t.mock.fn(async (servico: CreateServicoInput): Promise<CreateServicoResponse> => {
             return {  
                 servico_id: "123",
-                ...servico
+                nome_servico: servico.nome_servico,
+                valor_servico: new Prisma.Decimal(servico.valor_servico)
             }
         })
     }
@@ -23,14 +25,15 @@ test("Should create a new 'serviço' and return it", async (t) => {
     
     const fakeServico = {
         nome_servico: "Lancer",
-        valor_servico: Prisma.Decimal(999.99)
+        valor_servico: 999.99
     }
 
     const created = await fakeServicoService.create(fakeServico);
 
     assert.deepStrictEqual(created, {
         servico_id: (await created).servico_id,
-        ...fakeServico
+        nome_servico: fakeServico.nome_servico,
+        valor_servico: new Prisma.Decimal(fakeServico.valor_servico)
     });
     
     assert.strictEqual(
@@ -53,14 +56,15 @@ test("Should throw an error when the 'servico' passed as input is invalid", asyn
             
             if (
                 servico.nome_servico.length <= 0 ||
-                servico.valor_servico.toNumber() < 1
+                servico.valor_servico < 1
             ) {
                 throw new AppError("Cannot create serviço: Invalid data.", ErrorCodes.InvalidInputData);
             }
 
             return {
                 servico_id: "123",
-                ...servico
+                nome_servico: servico.nome_servico,
+                valor_servico: new Prisma.Decimal(servico.valor_servico)
             }
         })
 
@@ -70,7 +74,7 @@ test("Should throw an error when the 'servico' passed as input is invalid", asyn
 
     const fakeInvalidServico = {
         nome_servico: "",
-        valor_servico: Prisma.Decimal(99.88)
+        valor_servico: 99.88
     }
 
     assert.rejects(() => {

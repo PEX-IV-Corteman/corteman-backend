@@ -1,7 +1,8 @@
 import type {
-    CreateServicoInput, CreateServicoResponse,
+    CreateServicoResponse,
     GetServicoResponse, UpdateServicoRequest
 } from "../interfaces/dtos/servico.js";
+import type { CreateServicoInput } from "../schemas/servico-schema.js";
 import type { ServicoRepository } from "../interfaces/servico-repository.js";
 import type { ServicoFilters } from "../tools/servico-validation.js";
 

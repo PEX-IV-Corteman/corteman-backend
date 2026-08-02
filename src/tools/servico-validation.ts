@@ -1,4 +1,4 @@
-import type { CreateServicoRequest, FilterServicosQuery, FilterServicosRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
+import type { FilterServicosQuery, FilterServicosRequest, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
     Keys extends keyof T
@@ -6,23 +6,6 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
     : never;
 
 export type ServicoFilters = RequireAtLeastOne<FilterServicosRequest>;
-
-export function isCreateServicoBodyValid(value: unknown): value is CreateServicoRequest {
-
-    if (typeof value !== "object" || value === null) {
-        return false;
-    }
-    const body = value as Record<string, unknown>;
-
-    return (
-        typeof body.nome_servico === "string" &&
-        body.nome_servico.length > 0 &&
-        typeof body.valor_servico === "number" &&
-        body.valor_servico > 0
-    );
-
-}
-
 
 export function isUpdateServicoBodyValid(value: unknown): value is UpdateServicoRequest {
 

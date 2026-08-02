@@ -2,8 +2,9 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import type { CreateServicoInput, CreateServicoResponse, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
+import type { CreateServicoResponse, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
 import type { ServicoRepository } from "../interfaces/servico-repository.js";
+import type { CreateServicoInput } from "../schemas/servico-schema.js";
 import type { ServicoFilters } from "../tools/servico-validation.js";
 
 export class PrismaServicoRepository implements ServicoRepository {

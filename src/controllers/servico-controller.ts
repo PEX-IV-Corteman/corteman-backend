@@ -1,9 +1,11 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isCreateServicoBodyValid, isFilterQueryValid, isUpdateServicoBodyValid } from "../tools/servico-validation.js";
+import { isFilterQueryValid, isUpdateServicoBodyValid } from "../tools/servico-validation.js";
 import type { ServicoFilters } from "../tools/servico-validation.js";
+import { formatValidationError } from "../tools/zod-error-formatter.js";
 import { DatabaseError } from "../errors/database-error.js";
+import { createServicoSchema } from "../schemas/servico-schema.js";
 
 export class ServicoController {
 
@@ -11,15 +13,15 @@ export class ServicoController {
 
     create: RequestHandler = async (req, res) => {
 
-        const servicoData = req.body;
+        const validation = createServicoSchema.safeParse(req.body);
 
-        if (!isCreateServicoBodyValid(servicoData)) {
-            return res.status(400).json({ message: "Os dados do serviço não foram fornecidos ou são inválidos." });
+        if (!validation.success) {
+            return res.status(422).json(formatValidationError(validation.error));
         }
 
         try {
 
-            const servicoCreated = await this.servicoService.create(servicoData);
+            const servicoCreated = await this.servicoService.create(validation.data);
             return res.status(201).json({ message: "Novo serviço adicionado.", servicoCreated });
 
         } catch (e) {
