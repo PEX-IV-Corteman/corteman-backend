@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
-    "dev": "npx tsc && node dist/server.js",
-    "test": "npm run build && node --test dist/tests/**/*.test.js"
+    "build": "tsc --project tsconfig.build.json",
+    "dev": "tsx watch --clear-screen=false server.ts",
+    "test": "tsx --test",
+    "type-check": "tsc --project tsconfig.build.json --noEmit"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "@types/node": "^25.8.0",
     "@types/pg": "^8.20.0",
     "prisma": "^7.8.0",
+    "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   }
 }
