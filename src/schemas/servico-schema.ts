@@ -39,8 +39,25 @@ const servicoIdParamsSchema = z.object({
     id: z.uuid({ error: "O identificador do serviço deve ser um UUID válido." })
 });
 
+const listServicosQuerySchema = z.strictObject({
+    nome_servico: nomeServicoSchema.optional(),
+    valor_max: z
+        .string({ error: "O valor máximo deve ser informado como texto numérico." })
+        .trim()
+        .min(1, { error: "O valor máximo não pode estar vazio." })
+        .transform(Number)
+        .pipe(valorServicoSchema)
+        .optional()
+});
+
 type CreateServicoInput = z.infer<typeof createServicoSchema>;
+type ListServicosQuery = z.infer<typeof listServicosQuerySchema>;
 type UpdateServicoInput = z.infer<typeof updateServicoSchema>;
 
-export { createServicoSchema, servicoIdParamsSchema, updateServicoSchema };
-export type { CreateServicoInput, UpdateServicoInput };
+export {
+    createServicoSchema,
+    listServicosQuerySchema,
+    servicoIdParamsSchema,
+    updateServicoSchema
+};
+export type { CreateServicoInput, ListServicosQuery, UpdateServicoInput };

@@ -2,9 +2,8 @@ import type {
     CreateServicoResponse,
     GetServicoResponse, UpdateServicoResponse
 } from "../interfaces/dtos/servico.js";
-import type { CreateServicoInput, UpdateServicoInput } from "../schemas/servico-schema.js";
+import type { CreateServicoInput, ListServicosQuery, UpdateServicoInput } from "../schemas/servico-schema.js";
 import type { ServicoRepository } from "../interfaces/servico-repository.js";
-import type { ServicoFilters } from "../tools/servico-validation.js";
 
 export class ServicoService {
 
@@ -16,10 +15,9 @@ export class ServicoService {
 
     }
 
-    public async list(): Promise<GetServicoResponse[]> {
+    public async list(filters: ListServicosQuery): Promise<GetServicoResponse[]> {
 
-        const servicos = await this.repository.list();
-        return servicos;
+        return await this.repository.list(filters);
 
     }
 
@@ -42,11 +40,4 @@ export class ServicoService {
 
     }
 
-    public async filter(servicoData: ServicoFilters): Promise<GetServicoResponse[]> {
-
-        const servicos = await this.repository.filter(servicoData);
-        return servicos;
-
-    }
-    
 }

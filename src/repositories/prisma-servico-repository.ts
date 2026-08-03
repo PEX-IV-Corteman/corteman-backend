@@ -4,8 +4,7 @@ import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "../interfaces/dtos/servico.js";
 import type { ServicoRepository } from "../interfaces/servico-repository.js";
-import type { CreateServicoInput, UpdateServicoInput } from "../schemas/servico-schema.js";
-import type { ServicoFilters } from "../tools/servico-validation.js";
+import type { CreateServicoInput, ListServicosQuery, UpdateServicoInput } from "../schemas/servico-schema.js";
 
 export class PrismaServicoRepository implements ServicoRepository {
 
@@ -25,10 +24,21 @@ export class PrismaServicoRepository implements ServicoRepository {
         }
     }
 
-    public async list(): Promise<GetServicoResponse[]> {
+    public async list(filters: ListServicosQuery = {}): Promise<GetServicoResponse[]> {
 
-        const servicos = await prisma.servicos.findMany();
-        return servicos;
+        const where = {
+            ...(filters.nome_servico !== undefined && {
+                nome_servico: {
+                    contains: filters.nome_servico,
+                    mode: "insensitive" as const
+                }
+            }),
+            ...(filters.valor_max !== undefined && {
+                valor_servico: { lte: filters.valor_max }
+            })
+        };
+
+        return await prisma.servicos.findMany({ where });
     }
 
     public async find(servicoId: string): Promise<GetServicoResponse | null> {
@@ -104,35 +114,6 @@ export class PrismaServicoRepository implements ServicoRepository {
 
         }
 
-    }
-
-    public async filter(servicoData: ServicoFilters): Promise<GetServicoResponse[]> {
-
-        const filterConditions = [];
-
-        if (servicoData.nome_servico?.startsWith) {
-
-            filterConditions.push({
-                nome_servico: { startsWith: servicoData.nome_servico.startsWith }
-            });
-
-        }
-
-        if (servicoData.valor_servico?.max) {
-
-            filterConditions.push({
-                valor_servico: { lte: servicoData.valor_servico.max }
-            });
-        }
-
-        const servicos = await prisma.servicos.findMany({
-            where: {
-                OR: filterConditions
-            }
-        });
-
-        return servicos;
-        
     }
 
 }

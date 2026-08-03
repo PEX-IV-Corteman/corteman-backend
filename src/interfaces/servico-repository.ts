@@ -1,12 +1,11 @@
-import type { ServicoFilters } from "../tools/servico-validation.js";
 import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "./dtos/servico.js";
-import type { CreateServicoInput, UpdateServicoInput } from "../schemas/servico-schema.js";
+import type { CreateServicoInput, ListServicosQuery, UpdateServicoInput } from "../schemas/servico-schema.js";
 
 export interface ServicoRepository {
     
     create(servico: CreateServicoInput): Promise<CreateServicoResponse>;
 
-    list(): Promise<GetServicoResponse[]>;
+    list(filters?: ListServicosQuery): Promise<GetServicoResponse[]>;
 
     find(servicoId: string): Promise<GetServicoResponse | null>;
 
@@ -14,6 +13,4 @@ export interface ServicoRepository {
 
     delete(servicoId: string): Promise<void>;
 
-    filter(servicoData: ServicoFilters): Promise<GetServicoResponse[]>;
-    
 }

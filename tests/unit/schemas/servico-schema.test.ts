@@ -2,6 +2,7 @@ import assert from "node:assert";
 import { test } from "node:test";
 import {
     createServicoSchema,
+    listServicosQuerySchema,
     servicoIdParamsSchema,
     updateServicoSchema
 } from "../../../src/schemas/servico-schema.js";
@@ -58,6 +59,38 @@ test("Should apply the monetary rules to a service update", () => {
 
 test("Should reject an invalid service id", () => {
     const result = servicoIdParamsSchema.safeParse({ id: "invalid-id" });
+
+    assert.strictEqual(result.success, false);
+});
+
+test("Should accept an empty service list query", () => {
+    const result = listServicosQuerySchema.safeParse({});
+
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.data, {});
+});
+
+test("Should sanitize and transform service list filters", () => {
+    const result = listServicosQuerySchema.safeParse({
+        nome_servico: "  Corte  ",
+        valor_max: "50.90"
+    });
+
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.data, {
+        nome_servico: "Corte",
+        valor_max: 50.9
+    });
+});
+
+test("Should reject a non-numeric maximum service value", () => {
+    const result = listServicosQuerySchema.safeParse({ valor_max: "abc" });
+
+    assert.strictEqual(result.success, false);
+});
+
+test("Should reject unknown service list filters", () => {
+    const result = listServicosQuerySchema.safeParse({ ativo: "true" });
 
     assert.strictEqual(result.success, false);
 });
