@@ -23,8 +23,7 @@ export class ServicoService {
 
     public async find(servicoId: string): Promise<GetServicoResponse | null> {
 
-        const servico = await this.repository.find(servicoId);
-        return servico;
+        return await this.repository.find(servicoId);
 
     }
 

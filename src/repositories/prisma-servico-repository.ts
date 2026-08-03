@@ -43,11 +43,9 @@ export class PrismaServicoRepository implements ServicoRepository {
 
     public async find(servicoId: string): Promise<GetServicoResponse | null> {
 
-        const servico = await prisma.servicos.findUnique({
+        return await prisma.servicos.findUnique({
             where: { servico_id: servicoId }
         });
-        
-        return servico;
 
     }
 

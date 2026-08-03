@@ -99,24 +99,53 @@ export class ServicoController {
 
     find: RequestHandler = async (req, res) => {
 
-        const servicoId = req.params.id as string;
+        const validation = servicoIdParamsSchema.safeParse(req.params);
+
+        if (!validation.success) {
+            return res.status(422).json(formatValidationError(validation.error));
+        }
 
         try {
-            
-            const servico = await this.servicoService.find(servicoId);
+
+            const servico = await this.servicoService.find(validation.data.id);
 
             if (!servico) {
-                return res.status(404).json({ message: "Serviço não encontrado." });
+
+                const response: ApiErrorResponse = {
+                    success: false,
+                    message: "Serviço não encontrado.",
+                    data: null,
+                    errors: [{
+                        field: "id",
+                        messages: ["Não foi encontrado um serviço com o identificador informado."]
+                    }]
+                };
+
+                return res.status(404).json(response);
             }
 
-            return res.status(200).json(servico);
+            const response: ApiResponse<typeof servico> = {
+                success: true,
+                message: "Serviço encontrado com sucesso.",
+                data: servico,
+                errors: []
+            };
+
+            return res.status(200).json(response);
 
         } catch (e) {
 
-            return res.status(500).json("Erro ao buscar serviço.");
+            console.error(e);
 
+            const response: ApiErrorResponse = {
+                success: false,
+                message: "Erro ao buscar serviço.",
+                data: null,
+                errors: []
+            };
+
+            return res.status(500).json(response);
         }
-
     }
 
     update: RequestHandler = async (req, res) => {

@@ -122,3 +122,36 @@ test("Should list services using the provided filters", async (t) => {
         filters
     );
 });
+
+test("Should find a service by its id", async (t) => {
+    const findResult: GetServicoResponse = {
+        servico_id: "123",
+        nome_servico: "Corte masculino",
+        valor_servico: new Prisma.Decimal(45.9)
+    };
+    const fakeServicoRepository = {
+        create: async (servico: CreateServicoInput): Promise<CreateServicoResponse> => ({
+            servico_id: "123",
+            nome_servico: servico.nome_servico,
+            valor_servico: new Prisma.Decimal(servico.valor_servico)
+        }),
+        list: async () => [],
+        find: t.mock.fn(async (_servicoId: string): Promise<GetServicoResponse | null> => findResult),
+        update: async () => ({
+            servico_id: "123",
+            nome_servico: "Corte masculino",
+            valor_servico: new Prisma.Decimal(45.9)
+        }),
+        delete: async () => {}
+    } satisfies ServicoRepository;
+    const servicoService = new ServicoService(fakeServicoRepository);
+
+    const found = await servicoService.find("123");
+
+    assert.strictEqual(found, findResult);
+    assert.strictEqual(fakeServicoRepository.find.mock.callCount(), 1);
+    assert.strictEqual(
+        fakeServicoRepository.find.mock.calls[0]?.arguments[0],
+        "123"
+    );
+});
