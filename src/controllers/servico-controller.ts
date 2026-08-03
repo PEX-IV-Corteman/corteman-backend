@@ -1,11 +1,11 @@
 import { ServicoService } from "../services/servico-service.js";
 import type { RequestHandler } from "express";
 import { ErrorCodes } from "../errors/error-codes.js";
-import { isFilterQueryValid, isUpdateServicoBodyValid } from "../tools/servico-validation.js";
+import { isFilterQueryValid } from "../tools/servico-validation.js";
 import type { ServicoFilters } from "../tools/servico-validation.js";
 import { formatValidationError } from "../tools/zod-error-formatter.js";
 import { DatabaseError } from "../errors/database-error.js";
-import { createServicoSchema } from "../schemas/servico-schema.js";
+import { createServicoSchema, servicoIdParamsSchema, updateServicoSchema } from "../schemas/servico-schema.js";
 import type { ApiErrorResponse, ApiResponse } from "../interfaces/api-response.js";
 
 export class ServicoController {
@@ -37,7 +37,7 @@ export class ServicoController {
 
             let status = 500;
 
-            let response: ApiErrorResponse = {
+            const response: ApiErrorResponse = {
                 success: false,
                 message: "Erro ao criar serviço.",
                 data: null,
@@ -101,36 +101,59 @@ export class ServicoController {
 
     update: RequestHandler = async (req, res) => {
 
-        const servicoId = req.params.id as string;
-        const servicoData = req.body;
+        const paramsValidation = servicoIdParamsSchema.safeParse(req.params);
 
-        if (!isUpdateServicoBodyValid(servicoData)) {
-            return res.status(400).json({ message: "Valores não fornecidos ou inválidos." });
+        if (!paramsValidation.success) {
+            return res.status(422).json(formatValidationError(paramsValidation.error));
+        }
+
+        const bodyValidation = updateServicoSchema.safeParse(req.body);
+
+        if (!bodyValidation.success) {
+            return res.status(422).json(formatValidationError(bodyValidation.error));
         }
 
         try {
 
-            await this.servicoService.update(servicoId, servicoData);
-            return res.status(200).json({ message: "Servico atualizado com sucesso." });
+            const servicoUpdated = await this.servicoService.update(
+                paramsValidation.data.id,
+                bodyValidation.data
+            );
+
+            const response: ApiResponse<typeof servicoUpdated> = {
+                success: true,
+                message: "Serviço atualizado com sucesso.",
+                data: servicoUpdated,
+                errors: []
+            };
+
+            return res.status(200).json(response);
 
         } catch (e) {
 
-            if (e instanceof DatabaseError) {
+            let status = 500;
 
-                if (e.errorCode === ErrorCodes.RegisterAlreadyExists) {
-                    return res.status(409).json({ message: e.message });
-                }
+            const response: ApiErrorResponse = {
+                success: false,
+                message: "Erro ao atualizar serviço.",
+                data: null,
+                errors: []
+            };
 
-                if (e.errorCode === ErrorCodes.RegisterDoesNotExist) {
-                    return res.status(404).json({ message: e.message });
-                }
-
+            if (e instanceof DatabaseError && e.errorCode === ErrorCodes.RegisterAlreadyExists) {
+                response.message = "Não foi possível atualizar o serviço.";
+                response.errors = [{ field: "nome_servico", messages: [e.message] }];
+                status = 409;
+            } else if (e instanceof DatabaseError && e.errorCode === ErrorCodes.RegisterDoesNotExist) {
+                response.message = "Serviço não encontrado.";
+                response.errors = [{ field: "id", messages: [e.message] }];
+                status = 404;
+            } else {
+                console.error(e);
             }
 
-            return res.status(500).json({ message: "Erro ao atualizar serviço." });
-
+            return res.status(status).json(response);
         }
-
     }
 
     delete: RequestHandler = async (req, res) => {

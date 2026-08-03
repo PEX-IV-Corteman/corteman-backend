@@ -1,6 +1,6 @@
 import type { ServicoFilters } from "../tools/servico-validation.js";
-import type { CreateServicoResponse, GetServicoResponse, UpdateServicoRequest } from "./dtos/servico.js";
-import type { CreateServicoInput } from "../schemas/servico-schema.js";
+import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "./dtos/servico.js";
+import type { CreateServicoInput, UpdateServicoInput } from "../schemas/servico-schema.js";
 
 export interface ServicoRepository {
     
@@ -10,7 +10,7 @@ export interface ServicoRepository {
 
     find(servicoId: string): Promise<GetServicoResponse | null>;
 
-    update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void>;
+    update(servicoId: string, servicoData: UpdateServicoInput): Promise<UpdateServicoResponse>;
 
     delete(servicoId: string): Promise<void>;
 

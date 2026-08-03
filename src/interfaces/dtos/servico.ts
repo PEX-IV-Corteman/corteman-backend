@@ -31,7 +31,8 @@ export interface CreateServicoResponse {
     valor_servico: Decimal,
 }
 
-export interface UpdateServicoRequest {
-    nome_servico?: string,
-    valor_servico?: Decimal
+export interface UpdateServicoResponse {
+    servico_id: string,
+    nome_servico: string,
+    valor_servico: Decimal,
 }

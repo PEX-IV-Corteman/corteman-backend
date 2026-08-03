@@ -1,6 +1,10 @@
 import assert from "node:assert";
 import { test } from "node:test";
-import { createServicoSchema } from "../../../src/schemas/servico-schema.js";
+import {
+    createServicoSchema,
+    servicoIdParamsSchema,
+    updateServicoSchema
+} from "../../../src/schemas/servico-schema.js";
 
 test("Should accept a valid service value", () => {
     const result = createServicoSchema.safeParse({
@@ -25,6 +29,35 @@ test("Should reject a service value greater than DECIMAL(10,2)", () => {
         nome_servico: "Corte masculino",
         valor_servico: 100_000_000
     });
+
+    assert.strictEqual(result.success, false);
+});
+
+test("Should accept updating only one service field", () => {
+    const result = updateServicoSchema.safeParse({
+        nome_servico: "  Corte e barba  "
+    });
+
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.data?.nome_servico, "Corte e barba");
+});
+
+test("Should reject an empty service update", () => {
+    const result = updateServicoSchema.safeParse({});
+
+    assert.strictEqual(result.success, false);
+});
+
+test("Should apply the monetary rules to a service update", () => {
+    const result = updateServicoSchema.safeParse({
+        valor_servico: 45.999
+    });
+
+    assert.strictEqual(result.success, false);
+});
+
+test("Should reject an invalid service id", () => {
+    const result = servicoIdParamsSchema.safeParse({ id: "invalid-id" });
 
     assert.strictEqual(result.success, false);
 });

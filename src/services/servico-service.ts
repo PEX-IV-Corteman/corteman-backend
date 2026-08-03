@@ -1,8 +1,8 @@
 import type {
     CreateServicoResponse,
-    GetServicoResponse, UpdateServicoRequest
+    GetServicoResponse, UpdateServicoResponse
 } from "../interfaces/dtos/servico.js";
-import type { CreateServicoInput } from "../schemas/servico-schema.js";
+import type { CreateServicoInput, UpdateServicoInput } from "../schemas/servico-schema.js";
 import type { ServicoRepository } from "../interfaces/servico-repository.js";
 import type { ServicoFilters } from "../tools/servico-validation.js";
 
@@ -30,9 +30,9 @@ export class ServicoService {
 
     }
 
-    public async update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void> {
+    public async update(servicoId: string, servicoData: UpdateServicoInput): Promise<UpdateServicoResponse> {
 
-        await this.repository.update(servicoId, servicoData);
+        return await this.repository.update(servicoId, servicoData);
 
     }
 

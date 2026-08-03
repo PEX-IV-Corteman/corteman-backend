@@ -2,9 +2,9 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import type { CreateServicoResponse, GetServicoResponse, UpdateServicoRequest } from "../interfaces/dtos/servico.js";
+import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "../interfaces/dtos/servico.js";
 import type { ServicoRepository } from "../interfaces/servico-repository.js";
-import type { CreateServicoInput } from "../schemas/servico-schema.js";
+import type { CreateServicoInput, UpdateServicoInput } from "../schemas/servico-schema.js";
 import type { ServicoFilters } from "../tools/servico-validation.js";
 
 export class PrismaServicoRepository implements ServicoRepository {
@@ -41,16 +41,18 @@ export class PrismaServicoRepository implements ServicoRepository {
 
     }
 
-    public async update(servicoId: string, servicoData: UpdateServicoRequest): Promise<void> {
+    public async update(servicoId: string, servicoData: UpdateServicoInput): Promise<UpdateServicoResponse> {
 
         try {
 
-            await prisma.servicos.update({
+            const data = {
+                ...(servicoData.nome_servico !== undefined && { nome_servico: servicoData.nome_servico }),
+                ...(servicoData.valor_servico !== undefined && { valor_servico: servicoData.valor_servico })
+            };
+
+            return await prisma.servicos.update({
                 where: { servico_id: servicoId },
-                data: {
-                    nome_servico: servicoData.nome_servico as string,
-                    valor_servico: servicoData.valor_servico as Prisma.Decimal
-                }
+                data
             });
 
         } catch (e) {
@@ -66,17 +68,14 @@ export class PrismaServicoRepository implements ServicoRepository {
                 if (e.code === "P2002") {
 
                     throw new DatabaseError(
-                        "Serviço deve ser único.", ErrorCodes.RegisterAlreadyExists
+                        "O nome do serviço já está em uso.", ErrorCodes.RegisterAlreadyExists
                     );
 
                 }
-
             }
 
             throw e;
-
         }
-
     }
 
     public async delete(servicoId: string): Promise<void> {
