@@ -96,22 +96,14 @@ export class PrismaServicoRepository implements ServicoRepository {
 
         } catch (e) {
 
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
 
-                if (e.code === "P2025") {
-
-                    throw new DatabaseError(
-                        "Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist
-                    );
-
-                }
+                throw new DatabaseError("Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist);
 
             }
 
             throw e;
-
         }
-
     }
 
 }

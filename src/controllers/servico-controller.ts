@@ -207,27 +207,46 @@ export class ServicoController {
 
     delete: RequestHandler = async (req, res) => {
 
-        const servicoId = req.params.id as string;
+        const validation = servicoIdParamsSchema.safeParse(req.params);
+
+        if (!validation.success) {
+            return res.status(422).json(formatValidationError(validation.error));
+        }
 
         try {
 
-            await this.servicoService.delete(servicoId);
-            return res.status(204).json();
+            await this.servicoService.delete(validation.data.id);
+
+            const response: ApiResponse<null> = {
+                success: true,
+                message: "Serviço excluído com sucesso.",
+                data: null,
+                errors: []
+            };
+
+            return res.status(200).json(response);
 
         } catch (e) {
 
-            if (e instanceof DatabaseError) {
+            let status = 500;
 
-                if (e.errorCode === ErrorCodes.RegisterDoesNotExist) {
-                    return res.status(404).json({ message: "Serviço não encontrado." });
-                }
+            const response: ApiErrorResponse = {
+                success: false,
+                message: "Erro ao excluir serviço.",
+                data: null,
+                errors: []
+            };
 
+            if (e instanceof DatabaseError && e.errorCode === ErrorCodes.RegisterDoesNotExist) {
+                response.message = "Serviço não encontrado.";
+                response.errors = [{ field: "id", messages: [e.message] }];
+                status = 404;
+            } else {
+                console.error(e);
             }
 
-            return res.status(500).json({ message: "Erro ao deletar serviço." });
-
+            return res.status(status).json(response);
         }
-
     }
-
+    
 }
