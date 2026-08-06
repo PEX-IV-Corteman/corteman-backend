@@ -7,7 +7,7 @@ import type { ServicoRepository } from "../interfaces/servico-repository.js";
 
 export class ServicoService {
 
-    constructor(private repository: ServicoRepository) { };
+    constructor(private readonly repository: ServicoRepository) { };
 
     public async create(servicoData: CreateServicoInput): Promise<CreateServicoResponse> {
 
