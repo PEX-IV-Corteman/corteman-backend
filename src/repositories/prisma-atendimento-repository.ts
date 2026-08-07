@@ -3,8 +3,8 @@ import { prisma } from "../config/db.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import type { AtendimentoRepository } from "../interfaces/atendimento-repository.js";
-import type { CreateAtendimentoResponse, GetAtendimentoReponse } from "../interfaces/dtos/atendimento.js";
-import type { CreateAtendimentoInput, ListAtendimentosQuery } from "../schemas/atendimento-schema.js";
+import type { CreateAtendimentoResponse, GetAtendimentoReponse, UpdateAtendimentoResponse } from "../interfaces/dtos/atendimento.js";
+import type { CreateAtendimentoInput, ListAtendimentosQuery, UpdateAtendimentoInput } from "../schemas/atendimento-schema.js";
 
 export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
@@ -12,11 +12,11 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
         try {
 
-            const created = await prisma.atendimentos.create({
+            const createdAtendimento = await prisma.atendimentos.create({
                 data: atendimentoData
             });
 
-            return created;
+            return createdAtendimento;
 
         } catch (e) {
 
@@ -58,6 +58,42 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
         });
 
         return atendimentos;
+
+    }
+
+    public async update(atendimentoId: string, atendimentoData: UpdateAtendimentoInput): Promise<UpdateAtendimentoResponse> {
+
+        const filteredData = Object.fromEntries(
+            Object.entries(atendimentoData)
+            .filter(([key, value]) => {
+                value !== undefined ? [key, value] : []
+            })
+        );
+                
+        try {
+
+            const updatedAtendimento = await prisma.atendimentos.update({
+                where: {atendimento_id: atendimentoId},
+                data: filteredData
+            });
+
+            return updatedAtendimento;
+
+        } catch (e) {
+
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+
+                if (e.code === "P2025") {
+                    throw new DatabaseError("Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist);
+                }
+
+                throw new DatabaseError(e.message, ErrorCodes.UnexpectedDatabaseError);
+
+            }
+
+            throw e;
+
+        }
 
     }
 

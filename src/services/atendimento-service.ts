@@ -1,6 +1,6 @@
 import type { AtendimentoRepository } from "../interfaces/atendimento-repository.js";
-import type { CreateAtendimentoResponse, GetAtendimentoReponse } from "../interfaces/dtos/atendimento.js";
-import type { CreateAtendimentoInput, ListAtendimentosQuery } from "../schemas/atendimento-schema.js";
+import type { CreateAtendimentoResponse, GetAtendimentoReponse, UpdateAtendimentoResponse } from "../interfaces/dtos/atendimento.js";
+import type { CreateAtendimentoInput, ListAtendimentosQuery, UpdateAtendimentoInput } from "../schemas/atendimento-schema.js";
 
 export class AtendimentoService {
 
@@ -17,6 +17,13 @@ export class AtendimentoService {
 
         const atendimentos = await this.repository.list(filters);
         return atendimentos;
+
+    }
+
+    public async update(atendimentoId: string, atendimentoData: UpdateAtendimentoInput): Promise<UpdateAtendimentoResponse> {
+
+        const updatedAtendimento = await this.repository.update(atendimentoId, atendimentoData);
+        return updatedAtendimento;
 
     }
 

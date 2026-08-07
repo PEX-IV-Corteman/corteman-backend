@@ -2,8 +2,8 @@ import * as z from "zod";
 import { tipo_pagamento } from "../../generated/prisma/enums.js";
 
 
-const uuidParamSchema = z.object({
-    id: z.uuid({ error: "O identificador do serviço deve ser um UUID válido." })
+export const uuidParamSchema = z.object({
+    id: z.uuid({ error: "O identificador deve ser um UUID válido." })
 });
 
 const metodoPagamentoParamSchema = z.enum(
@@ -34,5 +34,14 @@ export const listAtendimentosQuerySchema = z.object({
     metodo_pagamento: metodoPagamentoParamSchema.optional()
 });
 
+export const updateAtendimentoSchema = z.object({
+    servico_id: z.uuid({error: "O identificador do serviço deve ser um UUID válido."}),
+    valor_atendimento: valorAtendimentoParamSchema.optional(),
+    metodo_pagamento: metodoPagamentoParamSchema.optional(),
+    realizado_em: z.date().optional()
+});
+
+
 export type CreateAtendimentoInput = z.infer<typeof createAtendimentoSchema>;
 export type ListAtendimentosQuery = z.infer<typeof listAtendimentosQuerySchema>;
+export type UpdateAtendimentoInput = z.infer<typeof updateAtendimentoSchema>;
