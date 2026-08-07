@@ -2,8 +2,8 @@ import * as z from "zod";
 import { tipo_pagamento } from "../../generated/prisma/enums.js";
 
 
-export const uuidParamSchema = z.object({
-    id: z.uuid({ error: "O identificador deve ser um UUID válido." })
+export const atendimentoIdParamSchema = z.object({
+    id: z.uuid({ error: "O identificador do atendimento deve ser um UUID válido." })
 });
 
 const metodoPagamentoParamSchema = z.enum(

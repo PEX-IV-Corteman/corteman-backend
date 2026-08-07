@@ -1,12 +1,12 @@
 import type { RequestHandler } from "express";
 import type { AtendimentoService } from "../services/atendimento-service.js";
-import { createAtendimentoSchema, listAtendimentosQuerySchema, updateAtendimentoSchema, uuidParamSchema } from "../schemas/atendimento-schema.js";
+import { createAtendimentoSchema, listAtendimentosQuerySchema, updateAtendimentoSchema, atendimentoIdParamSchema } from "../schemas/atendimento-schema.js";
 import { formatValidationError } from "../tools/zod-error-formatter.js";
 import type { ApiErrorResponse, ApiResponse } from "../interfaces/api-response.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 
-export class AtentimentoController {
+export class AtendimentoController {
 
     constructor(private readonly service: AtendimentoService) { };
 
@@ -96,10 +96,64 @@ export class AtentimentoController {
 
     }
 
+ 
+    find: RequestHandler = async (req, res) => {
+
+        const idValidation = atendimentoIdParamSchema.safeParse(req.params);
+
+        if (!idValidation.success) {
+            return res.status(422).json(formatValidationError(idValidation.error));
+        }
+
+        try {
+
+            const atendimento = await this.service.find(idValidation.data.id);
+
+            if (!atendimento) {
+
+                const response: ApiErrorResponse = {
+                    success: false,
+                    message: "Atendimento não encontrado.",
+                    data: null,
+                    errors: [{field: "'id'", messages: [
+                        "Não foi encontrado atendimento com o identificador especificado."
+                    ]}]
+                }
+
+                return res.status(404).json(response);
+
+            }
+
+            const response: ApiResponse<typeof atendimento> = {
+                success: true,
+                message: "Atendimento encontrado.",
+                data: atendimento,
+                errors: []
+            }
+
+            return res.status(200).json(response);
+
+        } catch (e) {
+
+            const response: ApiErrorResponse = {
+                success: false,
+                message: "Não foi possível retornar pedido.",
+                data: null,
+                errors: []
+            }
+
+            console.error(e);
+
+            return res.status(500).json(response);
+
+        }
+
+    }
+
 
     update: RequestHandler = async (req, res) => {
 
-        const idValidation = uuidParamSchema.safeParse(req.params);
+        const idValidation = atendimentoIdParamSchema.safeParse(req.params);
 
         if (!idValidation.success) {
             return res.status(422).json(formatValidationError(idValidation.error));
@@ -127,7 +181,7 @@ export class AtentimentoController {
         } catch (e) {
 
             let status = 500;
-            
+
             const response: ApiErrorResponse = {
                 success: false,
                 message: "Erro ao atualizar atendimento.",
@@ -138,7 +192,9 @@ export class AtentimentoController {
             if (e instanceof DatabaseError && e.errorCode === ErrorCodes.RegisterDoesNotExist) {
                 status = 404;
                 response.message = "Não foi possível atualizar o atendimento.";
-                response.errors = [ {field: "servico_id", messages: [e.message] }];
+                response.errors = [{ field: "servico_id", messages: [e.message] }];
+            } else {
+                console.error(e);
             }
 
             return res.status(status).json(response);
@@ -146,5 +202,47 @@ export class AtentimentoController {
         }
     }
 
+    delete: RequestHandler = async (req, res) => {
+
+        const idValidation = atendimentoIdParamSchema.safeParse(req.params);
+
+        if (!idValidation.success) {
+            return res.status(422).json(formatValidationError(idValidation.error));
+        }
+
+        try {
+
+            await this.service.delete(idValidation.data.id);
+
+            const response: ApiResponse<null> = {
+                success: true,
+                message: "Atendimento deletado com sucesso.",
+                data: null,
+                errors: []
+            }
+
+            return res.status(200).json(response);
+
+        } catch (e) {
+
+            let status = 500;
+            const response: ApiErrorResponse = {
+                success: false,
+                message: "Erro ao deletar atendimento.",
+                data: null,
+                errors: []
+            }
+
+            if (e instanceof DatabaseError && e.errorCode === ErrorCodes.RegisterDoesNotExist) {
+
+                status = 404;
+                response.errors = [{ field: "atendimento/servico 'id'", messages: [e.message] }]
+
+            } else {
+                console.error(e);
+            }
+        }
+
+    }
 
 }

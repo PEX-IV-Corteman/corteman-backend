@@ -61,19 +61,29 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
     }
 
+    public async find(atendimentoId: string): Promise<GetAtendimentoReponse | null> {
+
+        const atendimento = await prisma.atendimentos.findUnique({
+            where: { atendimento_id: atendimentoId }
+        });
+
+        return atendimento;
+
+    }
+
     public async update(atendimentoId: string, atendimentoData: UpdateAtendimentoInput): Promise<UpdateAtendimentoResponse> {
 
         const filteredData = Object.fromEntries(
             Object.entries(atendimentoData)
-            .filter(([key, value]) => {
-                value !== undefined ? [key, value] : []
-            })
+                .filter(([key, value]) => {
+                    value !== undefined ? [key, value] : []
+                })
         );
-                
+
         try {
 
             const updatedAtendimento = await prisma.atendimentos.update({
-                where: {atendimento_id: atendimentoId},
+                where: { atendimento_id: atendimentoId },
                 data: filteredData
             });
 
@@ -95,6 +105,31 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
         }
 
+    }
+
+    public async delete(atendimentoId: string): Promise<void> {
+
+        try {
+
+            await prisma.atendimentos.delete({
+                where: { atendimento_id: atendimentoId }
+            });
+
+        } catch (e) {
+
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+
+                if (e.code === "P2025") {
+                    throw new DatabaseError("Atendimento não registrado.", ErrorCodes.RegisterDoesNotExist);
+                }
+
+                throw new DatabaseError(e.message, ErrorCodes.UnexpectedDatabaseError);
+
+            }
+
+            throw e;
+
+        }
     }
 
 }

@@ -35,7 +35,7 @@ export class ServicoService {
 
     public async delete(servicoId: string): Promise<void> {
 
-        return await this.repository.delete(servicoId);
+        await this.repository.delete(servicoId);
 
     }
 

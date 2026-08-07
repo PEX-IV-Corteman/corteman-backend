@@ -16,8 +16,14 @@ export class PrismaServicoRepository implements ServicoRepository {
 
         } catch (e) {
 
-            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-                throw new DatabaseError("O nome do serviço já está em uso.", ErrorCodes.RegisterAlreadyExists);
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+
+                if (e.code === "P2002") {
+                    throw new DatabaseError("O nome do serviço já está em uso.", ErrorCodes.RegisterAlreadyExists);
+                }
+
+                throw new DatabaseError(e.message, ErrorCodes.UnexpectedDatabaseError);
+
             }
 
             throw e;
@@ -43,9 +49,11 @@ export class PrismaServicoRepository implements ServicoRepository {
 
     public async find(servicoId: string): Promise<GetServicoResponse | null> {
 
-        return await prisma.servicos.findUnique({
+        const servico = await prisma.servicos.findUnique({
             where: { servico_id: servicoId }
         });
+        
+        return servico;
 
     }
 
@@ -80,6 +88,9 @@ export class PrismaServicoRepository implements ServicoRepository {
                     );
 
                 }
+
+                throw new DatabaseError(e.message, ErrorCodes.UnexpectedDatabaseError);
+
             }
 
             throw e;
@@ -96,9 +107,13 @@ export class PrismaServicoRepository implements ServicoRepository {
 
         } catch (e) {
 
-            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
-                throw new DatabaseError("Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist);
+                if (e.code === "P2025") {
+                    throw new DatabaseError("Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist);
+                }
+
+                throw new DatabaseError(e.message, ErrorCodes.UnexpectedDatabaseError);
 
             }
 

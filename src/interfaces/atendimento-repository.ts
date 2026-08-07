@@ -7,6 +7,10 @@ export interface AtendimentoRepository {
 
     list(filters?: ListAtendimentosQuery): Promise<GetAtendimentoReponse[]>;
 
+    find(atendimentoId: string): Promise<GetAtendimentoReponse | null>;
+
     update(atendimentoId: string, atendimentoData: UpdateAtendimentoInput): Promise<UpdateAtendimentoResponse>;
+
+    delete(atendimentoId: string): Promise<void>;
 
 }
