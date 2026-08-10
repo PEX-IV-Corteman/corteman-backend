@@ -7,7 +7,7 @@ import {
     updateServicoSchema
 } from "../../../src/schemas/servico-schema.js";
 
-test("Should accept a valid service value", () => {
+test("Should accept a valid 'servico' object", () => {
     const result = createServicoSchema.safeParse({
         nome_servico: "Corte masculino",
         valor_servico: 45.9
