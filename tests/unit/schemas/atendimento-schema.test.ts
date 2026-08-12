@@ -14,7 +14,7 @@ const validAtendimento = {
 } as const;
 
 const validAtendimentoQueryParams = {
-    data_limite: new Date("2026-12-25"),
+    data_limite: "2026-12-25",
     valor_atendimento: 9.99,
     metodo_pagamento: "PIX",
 
@@ -85,25 +85,25 @@ test("Should accept a empty atendimento's query object", () => {
 
 });
 
-test("Should sanitize and transform 'atendimento's query params", () => {
+test("Should sanitize and transform atendimento's query params", () => {
 
     const result = listAtendimentosQuerySchema.safeParse({
-        data_limite: " 25/12/2026   ",
+        data_limite: " 2026-12-25   ",
         valor_max: "9.99 ",
-        metodo_pagamento: " DInHeirO"
+        metodo_pagamento: "   dINHEiRo  "
     });
 
     assert.strictEqual(result.success, true);
 
     assert.deepStrictEqual(result.data, {
-        data_limite: "25/12/2026",
-        valor_max: "9.99",
+        data_limite: "2026-12-25",
+        valor_max: 9.99,
         metodo_pagamento: "DINHEIRO"
     });
 
 });
 
-test("Should reject a non numeric max value", () => {
+test("Should reject a non numeric max value for query", () => {
 
     const result = listAtendimentosQuerySchema.safeParse({
         ...validAtendimentoQueryParams,
@@ -114,7 +114,7 @@ test("Should reject a non numeric max value", () => {
 
 });
 
-test("Should reject a invalid payment method", () => {
+test("Should reject a invalid payment method for query", () => {
 
     const result = listAtendimentosQuerySchema.safeParse({
         ...validAtendimentoQueryParams,
@@ -125,7 +125,7 @@ test("Should reject a invalid payment method", () => {
 
 });
 
-test("Should reject a invalid date value", () => {
+test("Should reject a invalid date value for query", () => {
 
     const result = listAtendimentosQuerySchema.safeParse({
         ...validAtendimentoQueryParams,

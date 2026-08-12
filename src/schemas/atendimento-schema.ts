@@ -4,6 +4,10 @@ export const atendimentoIdParamSchema = z.object({
     id: z.uuid({ error: "O identificador do atendimento deve ser um UUID válido." })
 });
 
+export const atendimentoDateParamSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    error: "A data deve estar no formato 'aaaa-mm-dd'."
+});
+
 const metodoPagamentoParamSchema = z.enum(
     ["PIX", "CARTAO", "DINHEIRO"],
     { error: "O método de pagamento deve ser do tipo 'PIX', 'CARTÃO' ou 'DINHEIRO'." }
@@ -31,7 +35,7 @@ export const listAtendimentosQuerySchema = z.object({
         .string({error: "A data limite deve ser especificada no formato 'texto'."})
         .trim()
         .min(10, {error: "A data limite deve ser um texto no formato 'aaaa-mm-dd'."})
-        .transform(Date)
+        .pipe(atendimentoDateParamSchema)
         .optional(),
     valor_max: z
         .string({error: "O valor máximo deve ser especificado no formato 'texto'."})
@@ -43,8 +47,8 @@ export const listAtendimentosQuerySchema = z.object({
     metodo_pagamento: z
         .string({error: "O método de pagamento deve ser especificado no formato 'texto'."})
         .trim()
-        .uppercase()
         .min(3, {error: "O método de pagamento deve conter no mínimo 3 letras."})
+        .toUpperCase()
         .pipe(metodoPagamentoParamSchema)
         .optional()
 });
