@@ -57,7 +57,7 @@ export const updateAtendimentoSchema = z.object({
     servico_id: z.uuid({error: "O identificador do serviço deve ser um UUID válido."}),
     valor_atendimento: valorAtendimentoParamSchema.optional(),
     metodo_pagamento: metodoPagamentoParamSchema.optional(),
-    realizado_em: z.date().optional()
+    realizado_em: z.string().optional()
 });
 
 

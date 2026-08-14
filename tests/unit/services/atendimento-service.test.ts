@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { test } from "node:test";
-import type { CreateAtendimentoInput, ListAtendimentosQuery } from "../../../src/schemas/atendimento-schema.js";
-import type { CreateAtendimentoResponse, GetAtendimentoResponse } from "../../../src/interfaces/dtos/atendimento.js";
+import type { CreateAtendimentoInput, ListAtendimentosQuery, UpdateAtendimentoInput } from "../../../src/schemas/atendimento-schema.js";
+import type { CreateAtendimentoResponse, GetAtendimentoResponse, UpdateAtendimentoResponse } from "../../../src/interfaces/dtos/atendimento.js";
 import type { AtendimentoRepository } from "../../../src/interfaces/atendimento-repository.js";
 import { AtendimentoService } from "../../../src/services/atendimento-service.js";
 
@@ -27,7 +27,7 @@ test("Should create a new 'atendimento' and return it", async (t) => {
 
         list: async () => [],
         find: async () => null,
-        update: async () => ({...validAtendimento}),
+        update: async () => (validAtendimento),
         delete: async () => { }
 
     } satisfies AtendimentoRepository;
@@ -62,7 +62,7 @@ test("Should create a new 'atendimento' and return it", async (t) => {
 test("Should return a list of 'atendimento' using the provided filters", async (t) => {
 
     const fakeAtendimentoRepository = {
-        create: async () => ({...validAtendimento}),
+        create: async () => (validAtendimento),
         list: t.mock.fn(async (filters: ListAtendimentosQuery): Promise<GetAtendimentoResponse[]> => (
             [{
                 ...validAtendimento,
@@ -71,7 +71,7 @@ test("Should return a list of 'atendimento' using the provided filters", async (
             }])
         ),
         find: async () => null,
-        update: async () => ({...validAtendimento}),
+        update: async () => (validAtendimento),
         delete: async () => { }
     } satisfies AtendimentoRepository
 
@@ -99,3 +99,94 @@ test("Should return a list of 'atendimento' using the provided filters", async (
 
 });
 
+test("Should find an 'atendimento' by its id", async (t) => {
+
+    const fakeAtendimentoRepository = {
+        create: async () => (validAtendimento),
+        list: async () => ([validAtendimento]),
+        find: t.mock.fn(async (atendimentoId: string): Promise<GetAtendimentoResponse> => ({
+            ...validAtendimento,
+            atendimento_id: atendimentoId
+        })),
+        update: async () => (validAtendimento),
+        delete: async () => { }
+
+    } satisfies AtendimentoRepository;
+
+    const atendimentoId = "550e8400-e29b-41d4-a716-446655440003";
+
+    const atendimento = await fakeAtendimentoRepository.find(atendimentoId);
+
+    assert.deepStrictEqual(atendimento, {
+        ...validAtendimento,
+        atendimento_id: atendimentoId
+    });
+
+    assert.strictEqual(fakeAtendimentoRepository.find.mock.callCount(), 1);
+
+    assert.deepStrictEqual(
+        fakeAtendimentoRepository.find.mock.calls[0]?.arguments[0],
+        atendimentoId
+    );
+
+});
+
+test("Should update an 'atendimento' and return it", async (t) => {
+
+    const fakeAtendimentoRepository = {
+        create: async () => (validAtendimento),
+        list: async () => ([validAtendimento]),
+        find: async () => (validAtendimento),
+        update: t.mock.fn(
+            async (
+                atendimentoId: string,
+                atendimentoData: UpdateAtendimentoInput
+            ): Promise<UpdateAtendimentoResponse> => (validAtendimento)
+        ),
+        delete: async () => {}
+
+    } satisfies AtendimentoRepository;
+
+    const atendimentoId = "550e8400-e29b-41d4-a716-446655440003";
+    const atendimentoData = {...validAtendimento} as UpdateAtendimentoInput;
+
+    const updatedAtendimento = await fakeAtendimentoRepository.update(atendimentoId, atendimentoData);
+
+    assert.deepStrictEqual(updatedAtendimento, atendimentoData);
+
+    assert.strictEqual(fakeAtendimentoRepository.update.mock.callCount(), 1);
+
+    assert.deepStrictEqual(
+        fakeAtendimentoRepository.update.mock.calls[0]?.arguments[0],
+        atendimentoId
+    );
+
+    assert.deepStrictEqual(
+        fakeAtendimentoRepository.update.mock.calls[0]?.arguments[1],
+        atendimentoData
+    );
+
+});
+
+test("Should delete an 'atendimento' by its id", async (t) => {
+
+    const fakeAtendimentoRepository = {
+        create: async () => (validAtendimento),
+        list: async () => ([validAtendimento]),
+        find: async () => (validAtendimento),
+        update: async () => (validAtendimento),
+        delete: t.mock.fn(async (atendimentoId: string): Promise<void> => {})
+    };
+
+    const atendimentoId = "550e8400-e29b-41d4-a716-446655440003";
+
+    await fakeAtendimentoRepository.delete(atendimentoId);
+
+    assert.strictEqual(fakeAtendimentoRepository.delete.mock.callCount(), 1);
+
+    assert.deepStrictEqual(
+        fakeAtendimentoRepository.delete.mock.calls[0]?.arguments[0],
+        atendimentoId
+    );
+
+});
