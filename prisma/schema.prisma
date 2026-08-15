@@ -7,6 +7,17 @@ datasource db {
   provider = "postgresql"
 }
 
+enum tipo_pagamento {
+  PIX
+  CARTAO
+  DINHEIRO
+}
+
+enum destino_retirada {
+  EMPRESA
+  PESSOAL
+}
+
 model atendimentos {
   atendimento_id    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   servico_id        String         @db.Uuid
@@ -23,8 +34,10 @@ model servicos {
   atendimentos  atendimentos[]
 }
 
-enum tipo_pagamento {
-  PIX
-  CARTAO
-  DINHEIRO
+model retirada {
+  retirada_id       String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  valor_retirada    Decimal            @db.Decimal(10, 2)
+  destino           destino_retirada
+  justificativa     String?
+  realizada_em      DateTime           @default(now()) @db.Timestamptz(6)
 }
