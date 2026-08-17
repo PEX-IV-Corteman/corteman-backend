@@ -34,7 +34,7 @@ model servicos {
   atendimentos  atendimentos[]
 }
 
-model retirada {
+model retiradas {
   retirada_id       String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   valor_retirada    Decimal            @db.Decimal(10, 2)
   destino           destino_retirada
