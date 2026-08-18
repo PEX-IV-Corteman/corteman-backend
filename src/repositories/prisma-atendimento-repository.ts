@@ -1,9 +1,10 @@
 import { Prisma } from "../../generated/prisma/client.js";
+import { Decimal } from "@prisma/client/runtime/index-browser";
 import { prisma } from "../config/db.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
-import type { AtendimentoRepository } from "../interfaces/atendimento-repository.js";
-import type { CreateAtendimentoResponse, GetAtendimentoReponse, UpdateAtendimentoResponse } from "../interfaces/dtos/atendimento.js";
+import type { AtendimentoRepository } from "../interfaces/repositories/atendimento-repository.js";
+import type { CreateAtendimentoResponse, GetAtendimentoResponse, UpdateAtendimentoResponse } from "../interfaces/dtos/atendimento.js";
 import type { CreateAtendimentoInput, ListAtendimentosQuery, UpdateAtendimentoInput } from "../schemas/atendimento-schema.js";
 
 export class PrismaAtendimentoRepository implements AtendimentoRepository {
@@ -36,7 +37,7 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
     }
 
-    public async list(filters?: ListAtendimentosQuery): Promise<GetAtendimentoReponse[]> {
+    public async list(filters?: ListAtendimentosQuery): Promise<GetAtendimentoResponse[]> {
 
         let atendimentoData = {};
 
@@ -61,7 +62,7 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
     }
 
-    public async find(atendimentoId: string): Promise<GetAtendimentoReponse | null> {
+    public async find(atendimentoId: string): Promise<GetAtendimentoResponse | null> {
 
         const atendimento = await prisma.atendimentos.findUnique({
             where: { atendimento_id: atendimentoId }

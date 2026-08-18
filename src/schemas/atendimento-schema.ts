@@ -34,7 +34,7 @@ export const listAtendimentosQuerySchema = z.object({
     data_limite: z
         .string({error: "A data limite deve ser especificada no formato 'texto'."})
         .trim()
-        .min(10, {error: "A data limite deve ser um texto no formato 'aaaa-mm-dd'."})
+        .length(10, {error: "A data limite deve ser um texto no formato 'aaaa-mm-dd'."})
         .pipe(atendimentoDateParamSchema)
         .optional(),
     valor_max: z

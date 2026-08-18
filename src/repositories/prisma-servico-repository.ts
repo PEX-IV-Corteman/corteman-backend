@@ -3,8 +3,8 @@ import { prisma } from "../config/db.js";
 import { DatabaseError } from "../errors/database-error.js";
 import { ErrorCodes } from "../errors/error-codes.js";
 import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "../interfaces/dtos/servico.js";
-import type { ServicoRepository } from "../interfaces/servico-repository.js";
-import type { CreateServicoInput, ListServicosQuery, UpdateServicoInput } from "../schemas/servico-schema.js";
+import type { ServicoRepository } from "../interfaces/repositories/servico-repository.js";
+import type { CreateServicoInput, ListServicosQueryInput, UpdateServicoInput } from "../schemas/servico-schema.js";
 
 export class PrismaServicoRepository implements ServicoRepository {
 
@@ -30,7 +30,7 @@ export class PrismaServicoRepository implements ServicoRepository {
         }
     }
 
-    public async list(filters: ListServicosQuery = {}): Promise<GetServicoResponse[]> {
+    public async list(filters: ListServicosQueryInput = {}): Promise<GetServicoResponse[]> {
 
         const where = {
             ...(filters.nome_servico !== undefined && {

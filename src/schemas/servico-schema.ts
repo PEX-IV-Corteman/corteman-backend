@@ -51,7 +51,7 @@ const listServicosQuerySchema = z.strictObject({
 });
 
 type CreateServicoInput = z.infer<typeof createServicoSchema>;
-type ListServicosQuery = z.infer<typeof listServicosQuerySchema>;
+type ListServicosQueryInput = z.infer<typeof listServicosQuerySchema>;
 type UpdateServicoInput = z.infer<typeof updateServicoSchema>;
 
 export {
@@ -60,4 +60,4 @@ export {
     servicoIdParamsSchema,
     updateServicoSchema
 };
-export type { CreateServicoInput, ListServicosQuery, UpdateServicoInput };
+export type { CreateServicoInput, ListServicosQueryInput, UpdateServicoInput };

@@ -2,7 +2,7 @@ import assert from "node:assert";
 import { test } from "node:test";
 import { Prisma } from "../../../generated/prisma/client.js";
 import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "../../../src/interfaces/dtos/servico.js";
-import type { ServicoRepository } from "../../../src/interfaces/servico-repository.js";
+import type { ServicoRepository } from "../../../src/interfaces/repositories/servico-repository.js";
 import type {
     CreateServicoInput,
     ListServicosQuery,

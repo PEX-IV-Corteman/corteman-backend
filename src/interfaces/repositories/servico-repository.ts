@@ -1,11 +1,11 @@
-import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "./dtos/servico.js";
-import type { CreateServicoInput, ListServicosQuery, UpdateServicoInput } from "../schemas/servico-schema.js";
+import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "../dtos/servico.js";
+import type { CreateServicoInput, ListServicosQueryInput, UpdateServicoInput } from "../../schemas/servico-schema.js";
 
 export interface ServicoRepository {
     
     create(servico: CreateServicoInput): Promise<CreateServicoResponse>;
 
-    list(filters?: ListServicosQuery): Promise<GetServicoResponse[]>;
+    list(filters?: ListServicosQueryInput): Promise<GetServicoResponse[]>;
 
     find(servicoId: string): Promise<GetServicoResponse | null>;
 

@@ -2,7 +2,7 @@ import assert from "node:assert";
 import { test } from "node:test";
 import type { CreateAtendimentoInput, ListAtendimentosQuery, UpdateAtendimentoInput } from "../../../src/schemas/atendimento-schema.js";
 import type { CreateAtendimentoResponse, GetAtendimentoResponse, UpdateAtendimentoResponse } from "../../../src/interfaces/dtos/atendimento.js";
-import type { AtendimentoRepository } from "../../../src/interfaces/atendimento-repository.js";
+import type { AtendimentoRepository } from "../../../src/interfaces/repositories/atendimento-repository.js";
 import { AtendimentoService } from "../../../src/services/atendimento-service.js";
 
 

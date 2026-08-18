@@ -3,7 +3,7 @@ import type {
     GetServicoResponse, UpdateServicoResponse
 } from "../interfaces/dtos/servico.js";
 import type { CreateServicoInput, ListServicosQuery, UpdateServicoInput } from "../schemas/servico-schema.js";
-import type { ServicoRepository } from "../interfaces/servico-repository.js";
+import type { ServicoRepository } from "../interfaces/repositories/servico-repository.js";
 
 export class ServicoService {
 
