@@ -51,7 +51,7 @@ const listRetiradaParamSchema = z.object({
         .optional()
 });
 
-export const retiradaIdParamSchema = z.object({
+const retiradaIdParamSchema = z.object({
     id: z.uuid({ error: "O id deve ser um UUID válido." })
 });
 
@@ -71,6 +71,14 @@ const updateRetiradaSchema = z
             || retirada.realizada_em !== undefined,
         { error: "Ao menos um campo deve ser atualizado." }
     );
+
+
+export {
+    createRetiradaSchema,
+    listRetiradaParamSchema,
+    updateRetiradaSchema,
+    retiradaIdParamSchema
+}
 
 export type CreateRetiradaInput = z.infer<typeof createRetiradaSchema>;
 export type ListRetiradaQueryInput = z.infer<typeof listRetiradaParamSchema>;

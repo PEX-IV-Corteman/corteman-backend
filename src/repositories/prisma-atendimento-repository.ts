@@ -24,7 +24,7 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
                 if (e.code === "P2025") {
-                    throw new DatabaseError(e.message, ErrorCodes.RegisterDoesNotExist);
+                    throw new DatabaseError("Serviço não encontrado.", ErrorCodes.RegisterDoesNotExist);
                 }
 
                 throw new DatabaseError(e.message, ErrorCodes.UnexpectedDatabaseError);
