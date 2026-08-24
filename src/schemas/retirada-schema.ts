@@ -23,7 +23,7 @@ const destinoRetiradaParamSchema = z.enum(
 
 const createRetiradaSchema = z.object({
     valor_retirada: valorRetiradaParamSchema,
-    destino_retirada: destinoRetiradaParamSchema,
+    destino: destinoRetiradaParamSchema,
     justificativa: z.string().max(80).optional()
 });
 

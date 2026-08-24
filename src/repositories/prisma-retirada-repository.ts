@@ -11,7 +11,12 @@ export class PrismaRetiradaRepository implements RetiradaRepository {
     async create(retiradaData: CreateRetiradaInput): Promise<CreateRetiradaResponse> {
 
         const retirada = await prisma.retiradas.create({
-            data: retiradaData
+            data: {
+                ...retiradaData,
+                justificativa: retiradaData.justificativa !== undefined
+                    ? retiradaData.justificativa
+                    : null
+            }
         });
 
         return retirada;
@@ -75,7 +80,7 @@ export class PrismaRetiradaRepository implements RetiradaRepository {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
                 if (e.code === "P2025") {
-                    throw new DatabaseError 
+                    throw new DatabaseError
                         ("Registro de retirada não encontrado.", ErrorCodes.RegisterDoesNotExist);
                 }
 

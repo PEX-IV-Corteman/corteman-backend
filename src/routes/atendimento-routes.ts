@@ -8,7 +8,7 @@ const repository = new PrismaAtendimentoRepository();
 const service = new AtendimentoService(repository);
 const controller = new AtendimentoController(service);
 
-atendimentoRouter.post("/atendimentod", controller.create);
+atendimentoRouter.post("/atendimentos", controller.create);
 atendimentoRouter.get("/atendimentos", controller.list);
 atendimentoRouter.get("/atendimentos/:id", controller.find);
 atendimentoRouter.put("/atendimentos/:id", controller.update);
