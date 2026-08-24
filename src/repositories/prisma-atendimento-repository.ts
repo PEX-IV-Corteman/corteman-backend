@@ -37,27 +37,23 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
     }
 
-    public async list(filters?: ListAtendimentosQuery): Promise<GetAtendimentoResponse[]> {
+    public async list(atendimentoFilters: ListAtendimentosQuery = {}): Promise<GetAtendimentoResponse[]> {
 
-        let atendimentoData = {};
-
-        if (filters) {
-
-            for (let filter in filters) {
-
-                atendimentoData = {
-                    ...atendimentoData,
-                    filter: filters[filter as keyof ListAtendimentosQuery]
-                }
-
-            }
-
+        const atendimentoData = {
+            ...(atendimentoFilters.servico_id && {
+                servico_id: atendimentoFilters.servico_id
+            }),
+            ...(atendimentoFilters.data_limite && {
+                realizado_em: { lte: new Date(atendimentoFilters.data_limite) }
+            }),
+            ...(atendimentoFilters.metodo_pagamento && {
+                metodo_pagamento: atendimentoFilters.metodo_pagamento
+            })
         }
 
         const atendimentos = await prisma.atendimentos.findMany({
             where: atendimentoData
         });
-
         return atendimentos;
 
     }
@@ -74,18 +70,26 @@ export class PrismaAtendimentoRepository implements AtendimentoRepository {
 
     public async update(atendimentoId: string, atendimentoData: UpdateAtendimentoInput): Promise<UpdateAtendimentoResponse> {
 
-        const filteredData = Object.fromEntries(
-            Object.entries(atendimentoData)
-                .filter(([key, value]) => {
-                    value !== undefined ? [key, value] : []
-                })
-        );
+        const atendimentoUdpateData = {
+            ...(atendimentoData.servico_id && {
+                servico_id: atendimentoData.servico_id
+            }),
+            ...(atendimentoData.valor_atendimento && {
+                valor_atendimento: atendimentoData.valor_atendimento
+            }),
+            ...(atendimentoData.metodo_pagamento && {
+                metodo_pagamento: atendimentoData.metodo_pagamento
+            }),
+            ...(atendimentoData.realizado_em && {
+                realizado_em: atendimentoData.realizado_em
+            })
+        };
 
         try {
 
             const updatedAtendimento = await prisma.atendimentos.update({
                 where: { atendimento_id: atendimentoId },
-                data: filteredData
+                data: atendimentoUdpateData
             });
 
             return updatedAtendimento;

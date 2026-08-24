@@ -31,6 +31,9 @@ export const createAtendimentoSchema = z.object({
 });
 
 export const listAtendimentosQuerySchema = z.object({
+    servico_id: z
+        .uuid({error: "O identificador do serviço deve ser um UUID válido."})
+        .optional(),
     data_limite: z
         .string({error: "A data limite deve ser especificada no formato 'texto'."})
         .trim()

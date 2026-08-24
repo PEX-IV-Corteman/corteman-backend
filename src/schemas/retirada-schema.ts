@@ -41,8 +41,14 @@ const listRetiradaParamSchema = z.object({
         .trim()
         .length(10, { error: "A data limite deve ser um texto no formato 'aaaa-mm-dd'." })
         .pipe(dataRetiradaParamSchema)
-        .optional()
+        .optional(),
 
+    destino: z
+        .string({ error: "O destino deve ser especificado no formato 'texto'." })
+        .trim()
+        .length(7, { error: "O destino deve ser ter no máximo 7 (sete) caracteres." })
+        .pipe(destinoRetiradaParamSchema)
+        .optional()
 });
 
 export const retiradaIdParamSchema = z.object({
@@ -61,8 +67,8 @@ const updateRetiradaSchema = z
             .optional()
     })
     .refine(
-        (retirada) => retirada.valor_retirada !== undefined || retirada.justificativa !== undefined 
-        || retirada.realizada_em !== undefined,
+        (retirada) => retirada.valor_retirada !== undefined || retirada.justificativa !== undefined
+            || retirada.realizada_em !== undefined,
         { error: "Ao menos um campo deve ser atualizado." }
     );
 
