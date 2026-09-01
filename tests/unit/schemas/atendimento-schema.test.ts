@@ -34,7 +34,7 @@ test("Should reject a invalid atendimento's id", () => {
 
 });
 
-test("Should accept a valid atendimento' object", (t) => {
+test("Should accept a valid 'atendimento' object", (t) => {
 
     const result = createAtendimentoSchema.safeParse({ ...validAtendimento });
 

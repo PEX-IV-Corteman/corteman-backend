@@ -3,9 +3,9 @@ import { test } from "node:test";
 import { Prisma } from "../../../generated/prisma/client.js";
 import type { CreateServicoResponse, GetServicoResponse, UpdateServicoResponse } from "../../../src/interfaces/dtos/servico.js";
 import type { ServicoRepository } from "../../../src/interfaces/repositories/servico-repository.js";
-import type {
+import type { 
     CreateServicoInput,
-    ListServicosQuery,
+    ListServicosQueryInput,
     UpdateServicoInput
 } from "../../../src/schemas/servico-schema.js";
 import { ServicoService } from "../../../src/services/servico-service.js";
@@ -98,7 +98,7 @@ test("Should list services using the provided filters", async (t) => {
             nome_servico: servico.nome_servico,
             valor_servico: new Prisma.Decimal(servico.valor_servico)
         }),
-        list: t.mock.fn(async (_filters?: ListServicosQuery): Promise<GetServicoResponse[]> => listResult),
+        list: t.mock.fn(async (_filters?: ListServicosQueryInput): Promise<GetServicoResponse[]> => listResult),
         find: async () => null,
         update: async () => ({
             servico_id: "123",
