@@ -41,7 +41,7 @@ test("Should reject a retirada object with no 'valor_retirada'", () => {
 
     const result = createRetiradaSchema.safeParse({
         ...validRetirada,
-        valor_retidara: ""
+        valor_retirada: ""
     });
 
     assert.strictEqual(result.success, false);
