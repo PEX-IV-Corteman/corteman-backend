@@ -77,7 +77,8 @@ export {
     createRetiradaSchema,
     listRetiradaParamSchema,
     updateRetiradaSchema,
-    retiradaIdParamSchema
+    retiradaIdParamSchema,
+    destinoRetiradaParamSchema
 }
 
 export type CreateRetiradaInput = z.infer<typeof createRetiradaSchema>;

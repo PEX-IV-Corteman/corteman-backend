@@ -70,11 +70,57 @@ test("Should reject a retirada object whose 'valor_retirada' has more than two d
 
 });
 
-test("Should reject a retirada objec whose 'valor_retirada' is greater than DECIMAL(10, 2)", () => {
+test("Should reject a retirada object whose 'valor_retirada' is greater than DECIMAL(10, 2)", () => {
 
     const result = createRetiradaSchema.safeParse({
         ...validRetirada,
         valor_retirada: 100_000_000
+    });
+
+    assert.strictEqual(result.success, false);
+
+});
+
+test("Shoud accept a retirada object which has a valid 'destino' value", () => {
+
+    const result = createRetiradaSchema.safeParse({
+        ...validRetirada,
+        destino: "PESSOAL"
+    });
+
+    assert.strictEqual(result.success, true);
+
+});
+
+test("Should reject a retirada object whose 'destino' is not valid", () => {
+
+    const result = createRetiradaSchema.safeParse({
+        ...validRetirada,
+        destino: "INVALID"
+    });
+
+    assert.strictEqual(result.success, false);
+
+});
+
+test("Should accept a retirada object with no 'justificativa'", () => {
+
+    const { valor_retirada, destino } = validRetirada;
+
+    const result = createRetiradaSchema.safeParse({
+        valor_retirada,
+        destino
+    });
+
+    assert.strictEqual(result.success, true);
+
+});
+
+test("Should reject a retirada object whose 'justificativa' is not a text", () => {
+
+    const result = createRetiradaSchema.safeParse({
+        ...validRetirada,
+        justificativa: 123456
     });
 
     assert.strictEqual(result.success, false);
