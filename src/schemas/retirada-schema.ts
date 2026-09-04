@@ -46,6 +46,7 @@ const listRetiradaParamSchema = z.object({
     destino: z
         .string({ error: "O destino deve ser especificado no formato 'texto'." })
         .trim()
+        .toUpperCase()
         .length(7, { error: "O destino deve ser ter no máximo 7 (sete) caracteres." })
         .pipe(destinoRetiradaParamSchema)
         .optional()
