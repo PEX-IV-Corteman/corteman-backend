@@ -23,7 +23,12 @@ const destinoRetiradaParamSchema = z.enum(
 
 const createRetiradaSchema = z.object({
     valor_retirada: valorRetiradaParamSchema,
-    destino: destinoRetiradaParamSchema,
+    destino: z
+    .string({ error: "O destino deve ser especificado no formato 'texto'."})
+    .trim()
+    .toUpperCase()
+    .length(7, { error: "O destino deve ter no máximo sete dígitos."})
+    .pipe(destinoRetiradaParamSchema),
     justificativa: z.string().max(80).optional()
 });
 

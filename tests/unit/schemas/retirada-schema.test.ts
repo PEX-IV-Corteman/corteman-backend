@@ -12,6 +12,7 @@ const validRetirada = {
 } as const;
 
 
+// create
 
 test("Should accept a valid retirada's id", () => {
 
@@ -126,6 +127,23 @@ test("Should reject a retirada object whose 'justificativa' is not a text", () =
     assert.strictEqual(result.success, false);
 
 });
+
+test("Should sanitize and transform the create params", () => {
+
+    const { valor_retirada, justificativa } = validRetirada;
+
+    const result = createRetiradaSchema.safeParse({
+        valor_retirada,
+        destino: "  emPreSA   ",
+        justificativa
+    });
+
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.data, validRetirada);
+
+})
+
+// list
 
 test("Should accept a empty retirada's query object", () => {
 
