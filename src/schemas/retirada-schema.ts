@@ -29,7 +29,7 @@ const createRetiradaSchema = z.object({
     .toUpperCase()
     .length(7, { error: "O destino deve ter no máximo sete dígitos."})
     .pipe(destinoRetiradaParamSchema),
-    justificativa: z.string().max(80).optional()
+    justificativa: z.string().max(80)
 });
 
 const listRetiradaParamSchema = z.object({
@@ -65,6 +65,7 @@ const updateRetiradaSchema = z
     .object({
         valor_retirada: valorRetiradaParamSchema.optional(),
         justificativa: z.string().max(80).optional(),
+        destino: destinoRetiradaParamSchema.optional(),
         realizada_em: z
             .string({ error: "A data deve ser especificada no formato 'texto'." })
             .trim()

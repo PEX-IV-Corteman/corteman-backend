@@ -11,10 +11,15 @@ const validRetirada = {
     justificativa: "Troca do bebedouro"
 } as const;
 
+const validRetiradaUpdate = {
+    ...validRetirada,
+    realizada_em: "2026-09-05"
+} as const;
+
 
 // create
 
-test("Should accept a valid retirada's id", () => {
+test("Should reject a retirada's id which is not in uuid format", () => {
 
     const result = retiradaIdParamSchema.safeParse({ id: "invalid-id" });
 
@@ -22,7 +27,7 @@ test("Should accept a valid retirada's id", () => {
 
 });
 
-test("Should accept a valid retirada's id", () => {
+test("Should accept a valid uuid as retirada's id", () => {
 
     const result = retiradaIdParamSchema.safeParse({ id: validRetiradaId });
 
@@ -104,7 +109,7 @@ test("Should reject a retirada object whose 'destino' is not 'EMPRESA' or 'PESSO
 
 });
 
-test("Should accept a retirada object with no 'justificativa'", () => {
+test("Should reject a retirada object with no 'justificativa'", () => {
 
     const { valor_retirada, destino } = validRetirada;
 
@@ -113,7 +118,7 @@ test("Should accept a retirada object with no 'justificativa'", () => {
         destino
     });
 
-    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.success, false);
 
 });
 
@@ -288,4 +293,176 @@ test("Should reject a query object whose 'valor_max' has more than two decimal p
     assert.strictEqual(result.success, false);
 
 });
+
+
+// update
+
+test("Sould reject an object with no params to update", () => {
+
+    const result = updateRetiradaSchema.safeParse({});
+
+    assert.strictEqual(result.success, false);
+
+});
+
+test("Should accept an object with all params to update", () => {
+
+    const result = updateRetiradaSchema.safeParse(validRetiradaUpdate);
+
+    assert.strictEqual(result.success, true);
+
+});
+
+test("Should reject an object whose 'valor_retirada' is not a positive number", () => {
+
+    const result1 = updateRetiradaSchema.safeParse({
+        ...validRetiradaUpdate,
+        valor_retirada: "invalid"
+    });
+
+    const result2 = updateRetiradaSchema.safeParse({
+        ...validRetiradaUpdate,
+        valor_retirada: -124.99
+    });
+
+    const result3 = updateRetiradaSchema.safeParse({
+        ...validRetiradaUpdate,
+        valor_retirada: ""
+    });
+
+    assert.strictEqual(result1.success, false);
+    assert.strictEqual(result2.success, false);
+    assert.strictEqual(result3.success, false);
+
+});
+
+test("Should accept an object with no 'valor_retirada' to update", () => {
+
+    const { destino, justificativa, realizada_em } = validRetiradaUpdate;
+
+    const result = updateRetiradaSchema.safeParse({
+        destino,
+        justificativa,
+        realizada_em
+    });
+
+    assert.strictEqual(result.success, true);
+
+});
+
+test("Should accept an object with no 'justificativa' to update", () => {
+
+    const { valor_retirada, destino, realizada_em } = validRetiradaUpdate;
+
+    const result = updateRetiradaSchema.safeParse({
+        valor_retirada,
+        destino,
+        realizada_em
+    });
+
+    assert.strictEqual(result.success, true);
+
+});
+
+test("Should reject an object whose 'justificativa' is not a text", () => {
+
+    const result = updateRetiradaSchema.safeParse({
+        ...validRetiradaUpdate,
+        justificativa: 123
+    });
+
+    assert.strictEqual(result.success, false);
+
+});
+
+test("Should reject an object whose 'justificativa' \
+    exceeds the limit of characters to update", () => {
+
+    const MAX_CHARACTERS = 80;
+
+    const result = updateRetiradaSchema.safeParse({
+        ...validRetiradaUpdate,
+        justificativa: 'a'.repeat(MAX_CHARACTERS + 1)
+    });
+
+    assert.strictEqual(result.success, false);
+
+});
+
+test("Should accept an object with no 'destino' to update", () => {
+
+    const { valor_retirada, justificativa, realizada_em } = validRetiradaUpdate;
+
+    const result = updateRetiradaSchema.safeParse({
+        valor_retirada,
+        justificativa,
+        realizada_em
+    });
+
+    assert.strictEqual(result.success, true);
+
+});
+
+test("Should reject an object whose 'destino' is not 'EMPRESA or 'PESSOAL' to update", () => {
+
+    const result = updateRetiradaSchema.safeParse({
+        ...validRetiradaUpdate,
+        destino: "INVALID"
+    });
+
+    assert.strictEqual(result.success, false);
+
+});
+
+test("Should accept an object with no 'realizada_em' to update", () => {
+
+    const { valor_retirada, destino, justificativa } = validRetiradaUpdate;
+
+    const result = updateRetiradaSchema.safeParse({
+        valor_retirada,
+        destino,
+        justificativa
+    });
+
+    assert.strictEqual(result.success, true);
+
+});
+
+test("Should reject an object whose 'realizada_em' is not in 'yyyy-mm-dd' \
+    text format to update", () => {
+
+        const result1 = updateRetiradaSchema.safeParse({
+            ...validRetiradaUpdate,
+            realizada_em: "20260905"
+        });
+
+        const result2 = updateRetiradaSchema.safeParse({
+            ...validRetiradaUpdate,
+            realizada_em: 20260905
+        });
+
+        const result3 = updateRetiradaSchema.safeParse({
+            ...validRetiradaUpdate,
+            realizada_em: "2026"
+        })
+
+        assert.strictEqual(result1.success, false);
+        assert.strictEqual(result2.success, false);
+        assert.strictEqual(result3.success, false);
+
+    });
+
+test("Should accept an object whose 'realizada_em' is in 'yyyy-mm-dd' \
+    text format to update", () => {
+        
+        const result = updateRetiradaSchema.safeParse({
+            ...validRetirada,
+            realizada_em: "2012-12-12"
+        });
+
+        assert.strictEqual(result.success, true);
+
+    });
+
+
 
