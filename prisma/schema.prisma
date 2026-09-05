@@ -38,6 +38,6 @@ model retiradas {
   retirada_id       String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   valor_retirada    Decimal            @db.Decimal(10, 2)
   destino           destino_retirada
-  justificativa     String?
+  justificativa     String
   realizada_em      DateTime           @default(now()) @db.Timestamptz(6)
 }
