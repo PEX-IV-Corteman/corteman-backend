@@ -4,6 +4,7 @@ import type { CreateAtendimentoInput, ListAtendimentosQuery, UpdateAtendimentoIn
 import type { CreateAtendimentoResponse, GetAtendimentoResponse, UpdateAtendimentoResponse } from "../../../src/interfaces/dtos/atendimento.js";
 import type { AtendimentoRepository } from "../../../src/interfaces/repositories/atendimento-repository.js";
 import { AtendimentoService } from "../../../src/services/atendimento-service.js";
+import { Decimal } from "@prisma/client/runtime/index-browser";
 
 
 const validAtendimento = {
@@ -20,7 +21,7 @@ test("Should create a new 'atendimento' and return it", async (t) => {
         create: t.mock.fn(async (atendimentoData: CreateAtendimentoInput): Promise<CreateAtendimentoResponse> => ({
             atendimento_id: "550e8400-e29b-41d4-a716-446655440002",
             servico_id: atendimentoData.servico_id,
-            valor_atendimento: 9.99,
+            valor_atendimento: Decimal(9.99),
             metodo_pagamento: "CARTAO",
             realizado_em: "2026-12-15"
         })),
