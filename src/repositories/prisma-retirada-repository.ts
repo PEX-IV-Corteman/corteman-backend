@@ -63,6 +63,9 @@ export class PrismaRetiradaRepository implements RetiradaRepository {
             }),
             ...(retiradaData.justificativa && {
                 justificativa: retiradaData.justificativa
+            }),
+            ...(retiradaData.destino && {
+                justificativa: retiradaData.destino
             })
         };
 
