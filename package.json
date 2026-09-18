@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx prisma generate && npx prisma migrate dev && tsc --project tsconfig.build.json",
+    "build": "npx prisma generate && npx prisma migrate deploy && tsc --project tsconfig.build.json",
     "dev": "tsx watch --clear-screen=false server.ts",
     "test": "tsx --test \"tests/**/*.test.ts\"",
     "type-check": "tsc --project tsconfig.build.json --noEmit"
