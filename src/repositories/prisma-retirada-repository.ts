@@ -11,12 +11,7 @@ export class PrismaRetiradaRepository implements RetiradaRepository {
     async create(retiradaData: CreateRetiradaInput): Promise<CreateRetiradaResponse> {
 
         const retirada = await prisma.retiradas.create({
-            data: {
-                ...retiradaData,
-                justificativa: retiradaData.justificativa !== undefined
-                    ? retiradaData.justificativa
-                    : null
-            }
+            data: retiradaData
         });
 
         return retirada;

@@ -2,7 +2,7 @@ import type {
     CreateServicoResponse,
     GetServicoResponse, UpdateServicoResponse
 } from "../interfaces/dtos/servico.js";
-import type { CreateServicoInput, ListServicosQuery, UpdateServicoInput } from "../schemas/servico-schema.js";
+import type { CreateServicoInput, ListServicosQueryInput, UpdateServicoInput } from "../schemas/servico-schema.js";
 import type { ServicoRepository } from "../interfaces/repositories/servico-repository.js";
 
 export class ServicoService {
@@ -15,7 +15,7 @@ export class ServicoService {
 
     }
 
-    public async list(filters: ListServicosQuery): Promise<GetServicoResponse[]> {
+    public async list(filters: ListServicosQueryInput): Promise<GetServicoResponse[]> {
 
         return await this.repository.list(filters);
 
