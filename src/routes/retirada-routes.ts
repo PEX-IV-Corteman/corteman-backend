@@ -11,7 +11,7 @@ const controller = new RetiradaController(service);
 retiradaRouter.post("/retiradas", controller.create);
 retiradaRouter.get("/retiradas", controller.list);
 retiradaRouter.get("/retiradas/:id", controller.find);
-retiradaRouter.put("retiradas/:id", controller.update);
-retiradaRouter.delete("retiradas/:id", controller.delete);
+retiradaRouter.put("/retiradas/:id", controller.update);
+retiradaRouter.delete("/retiradas/:id", controller.delete);
 
 export { retiradaRouter };

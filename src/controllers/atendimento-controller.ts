@@ -60,7 +60,7 @@ export class AtendimentoController {
 
     list: RequestHandler = async (req, res) => {
 
-        const validation = listAtendimentosQuerySchema.safeParse(req.body);
+        const validation = listAtendimentosQuerySchema.safeParse(req.query);
 
         if (!validation.success) {
             return res.status(422).json(formatValidationError(validation.error));
@@ -241,6 +241,9 @@ export class AtendimentoController {
             } else {
                 console.error(e);
             }
+
+            return res.status(status).json(response);
+            
         }
 
     }

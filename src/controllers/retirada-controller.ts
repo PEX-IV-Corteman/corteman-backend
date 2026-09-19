@@ -50,7 +50,7 @@ export class RetiradaController {
 
     list: RequestHandler = async (req, res) => {
 
-        const validation = listRetiradaParamSchema.safeParse(req.body);
+        const validation = listRetiradaParamSchema.safeParse(req.query);
 
         if (!validation.success) {
             return res.status(422).json(formatValidationError(validation.error));
